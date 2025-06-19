@@ -13,7 +13,7 @@ import Footer from "./component/Footer/Footer";
 const Home = () => {
   //const [result, setResult] = useState('');
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-[#020817]">
       <Navbar />
       <Hero />
       <Testimonial />
