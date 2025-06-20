@@ -1,6 +1,6 @@
 // app/dashboard/layout.tsx
-
-import React from 'react'
+"use client"
+import React, { useState } from 'react'
 import Navbar from '../component/Dashboard/Navbar'
 import Sidebar from '../component/Dashboard/Sidebar'
 
@@ -9,19 +9,28 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
+const [sidebarOpen, setSidebarOpen] = useState(false)
+  
   return (
-    <div className="min-h-screen flex flex-col bg-[#0F172A]">
-      <div className="md:ml-64">
-        <Navbar />
-      </div>
+    <div className="min-h-screen  bg-[#0F172A]">
+  <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-      <div className="flex flex-1 overflow-hidden">
-        <Sidebar />
+  {/* Optional overlay for mobile */}
+  {sidebarOpen && (
+    <div
+      className="fixed  inset-0 bg-black/50 z-40 lg:hidden"
+      onClick={() => setSidebarOpen(false)}
+    />
+  )}
 
-        <main className="flex-1 p-6 md:ml-64 overflow-y-auto">
-          {children}
-        </main>
-      </div>
-    </div>
+  <div className="flex">
+    <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+
+    <main className="flex-1 p-6 md:ml-64 pt-26 overflow-y-auto">
+      {children}
+    </main>
+  </div>
+</div>
+
   )
 }

@@ -1,7 +1,8 @@
 "use client";
 import React from 'react'
 import { useState } from 'react';
-import { Home, History, Settings, HelpCircle, FileText } from 'lucide-react';
+import { Button } from '../ui/button'
+import { Home, History, Settings, HelpCircle, FileText, X } from 'lucide-react';
 
 const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
@@ -10,16 +11,34 @@ const sidebarItems = [
     { id: "support", label: "Support", icon: HelpCircle },
   ];
 
-const Sidebar = () => {
+interface SidebarProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     const [activeTab, setActiveTab] = useState("dashboard");
+    
   return (
-    <div className="w-64 bg-[#1E293B] fixed left-0 top-0 border-r h-screen border-[#334155] hidden lg:block">
+    <div   className={`w-64 bg-[#1E293B] border-r border-[#334155] fixed  z-50 h-screen top-0 transform transition-transform duration-300 ease-in-out ${
+    sidebarOpen ? "translate-x-0" : "-translate-x-full"
+  } lg:translate-x-0`}>
         <div className="p-6">
-          <div className="flex items-center space-x-2 mb-8">
-            <div className="w-8 h-8 bg-[#2563EB] rounded-lg flex items-center justify-center">
-              <FileText className="w-5 h-5 text-white" />
+          <div className="flex items-center justify-between mb-8 lg:justify-start">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
+                <FileText className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-semibold text-white">ResumeAI</span>
             </div>
-            <span className="text-xl font-semibold text-white">ResumeAI</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden p-2 text-neutral-400 hover:text-white"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <X className="w-5 h-5" />
+            </Button>
           </div>
 
           <nav className="space-y-2">

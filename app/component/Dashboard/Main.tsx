@@ -1,5 +1,5 @@
 "use client";
-import React,{useState} from 'react'
+import React,{useState, useRef} from 'react'
 import {
   Card,
   CardHeader,
@@ -84,6 +84,7 @@ const suggestions = [
 
 const Main = () => {
     const [dragActive, setDragActive] = useState(false);
+    const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
 
 
     const handleDrag = (e: React.DragEvent) => {
@@ -95,12 +96,22 @@ const Main = () => {
       setDragActive(false);
     }
   };
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
     // Handle file drop logic here
+  };
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFileName(file.name);
+    }
+  };
+    const handleClick = () => {
+    fileInputRef.current?.click();
   };
 
   return (
@@ -116,31 +127,45 @@ const Main = () => {
               <CardContent>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Resume Upload */}
-                  <div
-                    className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center transition-colors ${
-                      dragActive
-                        ? "border-brand-400 bg-brand-900/20"
-                        : "border-neutral-600 hover:border-neutral-500"
-                    }`}
-                    onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                  >
-                    <FileText className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-white mb-2">
-                      Upload Resume
-                    </h3>
-                    <p className="text-neutral-400 mb-4 text-sm sm:text-base">
-                      Drag and drop your resume or click to browse
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
-                    >
-                      Choose File
-                    </Button>
-                  </div>
+           <div
+      className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-colors ${
+        dragActive
+          ? "border-brand-400 bg-brand-900/20"
+          : "border-neutral-600 hover:border-neutral-500"
+      }`}
+      onClick={handleClick}
+      onDragEnter={handleDrag}
+      onDragLeave={handleDrag}
+      onDragOver={handleDrag}
+      onDrop={handleDrop}
+    >
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        onChange={handleFileChange}
+        accept=".pdf,.doc,.docx"
+      />
+      <FileText className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
+      <h3 className="text-lg font-medium text-white mb-2">Upload Resume</h3>
+      <p className="text-neutral-400 mb-4 text-sm sm:text-base">
+        Drag and drop your resume or click to browse
+      </p>
+      <Button
+        variant="outline"
+        className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleClick();
+        }}
+      >
+        Choose File
+      </Button>
+
+      {selectedFileName && (
+        <p className="mt-4 text-sm text-green-400">{selectedFileName}</p>
+      )}
+    </div>
 
                   {/* Job Description Upload */}
                    <div className="border-2 border-dashed border-neutral-600 rounded-lg p-6 sm:p-8 hover:border-neutral-500 transition-colors">
@@ -159,6 +184,19 @@ const Main = () => {
                       }}
                     />
                   </div>
+                </div>
+                 <div className="flex justify-center mt-6">
+                  <Button
+                    size="lg"
+                    className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold min-w-[200px] shadow-lg hover:shadow-xl transition-all duration-200"
+                    onClick={() => {
+                      // Handle analysis start logic here
+                      console.log("Starting analysis...");
+                    }}
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Start Analysis
+                  </Button>
                 </div>
               </CardContent>
             </Card>
