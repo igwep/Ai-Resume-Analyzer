@@ -3,6 +3,9 @@
 import React, { useState } from 'react'
 import Navbar from '../component/Dashboard/Navbar'
 import Sidebar from '../component/Dashboard/Sidebar'
+import { Provider } from 'react-redux'
+import { store } from '../Store' 
+import GlobalLoader from '../component/GlobarLoader'
 
 export default function DashboardLayout({
   children,
@@ -27,7 +30,11 @@ const [sidebarOpen, setSidebarOpen] = useState(false)
     <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
     <main className="flex-1 p-6 md:ml-64 pt-26 overflow-y-auto">
+       <Provider store={store}>
+      <GlobalLoader />
       {children}
+       </Provider>
+  
     </main>
   </div>
 </div>

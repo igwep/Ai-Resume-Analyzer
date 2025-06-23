@@ -1,5 +1,8 @@
 "use client";
 import React,{useState, useRef} from 'react'
+ import { useAppDispatch, useAppSelector } from '@/app/hooks/useTypedHooks';
+ import { startLoading, stopLoading } from '@/app/Slices/LoaderSlice';
+import { setAnalysisResult, clearAnalysisResult } from '@/app/Slices/analysisSlice'
 import {
   Card,
   CardHeader,
@@ -26,7 +29,6 @@ import {
   CheckCircle,
   Award,
 } from "lucide-react";
-
 import { Progress } from '../ui/Progress';
 
  const analysisHistory = [
@@ -85,6 +87,12 @@ const suggestions = [
 const Main = () => {
     const [dragActive, setDragActive] = useState(false);
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [jobDescription, setJobDescription] = useState<string>("");
+    const dispatch = useAppDispatch();
+    /* const { isLoading, message } = useAppSelector((state) => state.loader); */
+   // const analysis = useAppSelector((state) => state.analysis.result);
+   
 
 
     const handleDrag = (e: React.DragEvent) => {
@@ -108,11 +116,42 @@ const Main = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFileName(file.name);
+      setSelectedFile(file);
     }
   };
     const handleClick = () => {
     fileInputRef.current?.click();
   };
+   const handleUpload = async () => {
+    dispatch(startLoading('analzing your Resume'))
+     if (!selectedFileName || !jobDescription) {
+      alert("Please upload a resume and enter a job description.");
+      return;
+    }
+    const formData = new FormData();
+    if (selectedFile) {
+      formData.append("resume", selectedFile);
+      formData.append("jobDesc", jobDescription);
+    }
+   
+
+
+    try { 
+      const res = await fetch('/api/analyze',{
+        method: 'POST',
+        body: formData,
+      })
+      const responseJson = await res.json(); // read once
+      dispatch(setAnalysisResult(responseJson))
+      console.log("Analysis Result:", responseJson);
+      dispatch(stopLoading());
+
+    
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      alert("Failed to analyze resume. Please try again.");
+    } 
+   } 
 
   return (
    <div className="max-w-8xl mx-auto space-y-6">
@@ -182,6 +221,8 @@ const Main = () => {
                       onClick={(e) => {
                         e.currentTarget.focus();
                       }}
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
                     />
                   </div>
                 </div>
@@ -190,6 +231,7 @@ const Main = () => {
                     size="lg"
                     className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold min-w-[200px] shadow-lg hover:shadow-xl transition-all duration-200"
                     onClick={() => {
+                      handleUpload()
                       // Handle analysis start logic here
                       console.log("Starting analysis...");
                     }}
