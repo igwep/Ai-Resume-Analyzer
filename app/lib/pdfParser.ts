@@ -1,4 +1,4 @@
-import PDFParser from "pdf2json";
+ import PDFParser from "pdf2json";
 
 export function ExtractTextFromPDF(fileBuffer: Buffer): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -19,3 +19,5 @@ export function ExtractTextFromPDF(fileBuffer: Buffer): Promise<string> {
     pdfParser.parseBuffer(fileBuffer);
   });
 }
+ 
+

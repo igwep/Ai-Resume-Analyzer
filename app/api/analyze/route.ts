@@ -8,17 +8,11 @@ function truncateText(text: string, maxLength = 3000): string {
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("▶️ POST request received for /api/analyze");
-
     const formData = await req.formData();
     const file = formData.get('resume') as File;
     const jobDesc = formData.get('jobDesc') as string;
 
-    console.log("📄 Received file:", file?.name);
-    console.log("📝 Received job description:", jobDesc);
-
     if (!file || !(file instanceof File)) {
-      console.warn("⚠️ No file uploaded or invalid file type.");
       return NextResponse.json({ error: 'No resume file uploaded.' }, { status: 400 });
     }
 
@@ -26,10 +20,8 @@ export async function POST(req: NextRequest) {
     const resumeRawText = await ExtractTextFromPDF(buffer);
     const resumeText = truncateText(resumeRawText, 3000);
 
-    console.log("✅ Extracted and truncated resume text.");
-
     const prompt = `
-You are a resume expert.
+You are a professional resume analyst.
 
 Here is the job description:
 ${jobDesc}
@@ -37,7 +29,7 @@ ${jobDesc}
 Here is the resume:
 ${resumeText}
 
-Please analyze the resume and return a JSON object with this exact format:
+Please return a JSON object that includes a resume analysis based on the job description. Make sure to strictly follow this structure:
 
 {
   "score": {
@@ -46,18 +38,55 @@ Please analyze the resume and return a JSON object with this exact format:
   },
   "missingSkills": {
     "title": "Missing Skills or Experiences",
-    "value": ["TypeScript", "GraphQL"]
+    "value": [
+      {
+        "name": "TypeScript",
+        "importance": "high",
+        "note": "Job requires TypeScript experience, but resume only mentions JavaScript."
+      },
+      {
+        "name": "GraphQL",
+        "importance": "medium",
+        "note": "Job prefers GraphQL experience, but resume does not mention it."
+      }
+    ]
   },
   "suggestions": {
     "title": "Suggestions to Improve Resume",
     "value": "Add experience with TypeScript and highlight backend project work."
-  }
+  },
+  "skills": [
+    {
+      "name": "React",
+      "importance": "high",
+      "note": "Frequently mentioned in job description but missing or under-emphasized."
+    }
+  ],
+  "detailedSuggestions": [
+    {
+      "title": "Include more measurable achievements",
+      "status": "improvement",
+      "note": "Quantifying your results (e.g., 'improved load speed by 40%') makes your resume more compelling."
+    },
+    {
+      "title": "Highlight relevant backend experience",
+      "status": "critical",
+      "note": "The job emphasizes full-stack skills, but your backend experience is limited or unclear."
+    },
+    {
+      "title": "Tailor your summary to the job",
+      "status": "success",
+      "note": "Your summary already aligns well with the job’s core requirements."
+    }
+  ]
 }
 
-⚠️ Important: Your response must ONLY contain raw valid JSON (no comments, no markdown, no explanations).
+Instructions:
+- Populate every field.
+- Do not leave 'skills' or 'detailedSuggestions' empty.
+- Use realistic skill names and suggestion titles.
+- Respond ONLY with valid raw JSON (no comments, no markdown, no explanation).
 `;
-
-    console.log("📤 Sending prompt to OpenRouter...");
 
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -66,56 +95,70 @@ Please analyze the resume and return a JSON object with this exact format:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-4o',
+        model: 'deepseek/deepseek-chat:free',
         messages: [
           { role: 'system', content: 'You are an expert resume advisor.' },
           { role: 'user', content: prompt },
         ],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 500,
       }),
     });
 
-    console.log("📥 OpenRouter responded with status:", response.status);
-
     if (!response.ok) {
-      const err = await response.json();
-      console.error('❌ OpenRouter API error:', err);
-      return NextResponse.json({ error: err.error?.message || 'API request failed' }, { status: 500 });
+      const err = await response.json().catch(() => null);
+      console.error('OpenRouter API error:', err);
+      return NextResponse.json(
+        { error: err?.error?.message || 'server_fail' },
+        { status: 502 }
+      );
     }
 
     const data = await response.json();
     let rawContent = data.choices?.[0]?.message?.content || '{}';
+    console.log('Raw AI response:', rawContent);
 
-    console.log("🧠 Raw AI response content:\n", rawContent);
-
-    // 🔧 Clean markdown formatting (like ```json ... ```)
-    rawContent = rawContent.trim().replace(/^```json/, '').replace(/^```/, '').replace(/```$/, '');
+    rawContent = rawContent.trim()
+      .replace(/^```json/, '')
+      .replace(/^```/, '')
+      .replace(/```$/, '');
 
     let parsed;
     try {
       parsed = JSON.parse(rawContent);
     } catch (err) {
-      console.error('❌ Failed to parse AI JSON:', rawContent);
       return NextResponse.json({ error: 'Invalid response format from AI.' }, { status: 500 });
     }
 
-    const { score, missingSkills, suggestions } = parsed;
+    const {
+  score = null,
+  missingSkills = null,
+  suggestions = null,
+  detailedSuggestions = null,
+} = parsed || {};
 
-    console.log("✅ Parsed AI response:", { score, missingSkills, suggestions });
+if (!score || !missingSkills || !suggestions || !detailedSuggestions) {
+  console.error(' One or more required fields are missing from the parsed response:', parsed);
+  return NextResponse.json(
+    { error: 'Incomplete analysis data returned from AI.' },
+    { status: 500 }
+  );
+}
 
-    return NextResponse.json(
-      {
-        modelUsed: 'gpt-4o',
-        score,
-        missingSkills,
-        suggestions,
-      },
-      { status: 200 }
-    );
+return NextResponse.json(
+  {
+    modelUsed: 'deepseek/deepseek-chat:free',
+    score,
+    missingSkills,
+    suggestions,
+    detailedSuggestions
+  },
+  { status: 200 }
+);
 
-  } catch (error: any) {
-    console.error('🔥 Internal server error during resume analysis:', error);
-    return NextResponse.json({ error: 'Server error analyzing resume.' }, { status: 500 });
+
+  } catch (error) {
+    console.error('Internal server error during resume analysis:', error);
+    return NextResponse.json({ error: 'server_fail' }, { status: 500 });
   }
 }
