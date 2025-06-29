@@ -55,6 +55,7 @@ const Navbar = () => {
               </a>
              
               <Button
+               onClick={() => (window.location.href = "/SignIn")}
                 variant="outline"
                 size="sm"
                 className="border-neutral-600  text-neutral-300 hover:bg-[#1E3A8A] hover:text-white"

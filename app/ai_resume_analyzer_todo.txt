@@ -1,0 +1,43 @@
+
+Project To-Do: AI Resume Analyzer
+
+1. User Authentication
+- [ ] Set up Firebase Auth / Supabase / NextAuth for user sign-in/sign-up.
+- [ ] Restrict access to analysis features only to authenticated users.
+- [ ] Secure API routes to reject unauthenticated requests.
+
+2. Database Integration
+- [ ] Choose DB (Firebase Firestore, Supabase, PostgreSQL, etc.).
+- [ ] Create schema:
+      - userId
+      - fileName
+      - analysisResult (JSON)
+      - improvementScore
+      - createdAt
+- [ ] Implement save logic after each successful analysis.
+- [ ] Connect front-end to fetch and display past records per user.
+
+3. History Section
+- [ ] Design UI for listing past resume analysis results:
+      - Show fileName, createdAt, and improvementScore.
+- [ ] Add click-to-expand view to show full analysis.
+- [ ] Allow deletion of past results.
+
+4. Settings Section
+- [ ] Design user settings UI:
+      - Option to update display name or email
+      - Toggle: allow saving resume data (on/off)
+- [ ] Implement profile management logic (e.g., update info or logout).
+- [ ] Show user info (email, number of analyses done, etc.).
+
+5. Support Section
+- [ ] Design UI with support/help content:
+      - FAQs (e.g., "How accurate is the analysis?")
+      - Contact form (optional) or link to email support.
+      - Feedback submission (could store in DB or email).
+
+6. Improvements & Extras
+- [ ] Add a score trend chart in History (e.g., using Recharts).
+- [ ] Add summary badges to History (e.g., "Much Better", "Needs Work").
+- [ ] Add tooltips and helpful hints in analysis UI.
+- [ ] UI polish: transitions, loading states, error messages.

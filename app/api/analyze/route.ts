@@ -1,9 +1,24 @@
 // app/api/analyze/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { ExtractTextFromPDF } from '@/app/lib/pdfParser';
+import { jsonrepair } from 'jsonrepair';
 
 function truncateText(text: string, maxLength = 3000): string {
   return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
+}
+
+function safeParseJSON(raw: string): any | null {
+  try {
+    return JSON.parse(raw);
+  } catch (err1) {
+    try {
+      const repaired = jsonrepair(raw);
+      return JSON.parse(repaired);
+    } catch (err2) {
+      console.error('Failed to repair and parse JSON:', err2);
+      return null;
+    }
+  }
 }
 
 export async function POST(req: NextRequest) {
@@ -123,40 +138,36 @@ Instructions:
       .replace(/^```/, '')
       .replace(/```$/, '');
 
-    let parsed;
-    try {
-      parsed = JSON.parse(rawContent);
-    } catch (err) {
+    const parsed = safeParseJSON(rawContent);
+    if (!parsed) {
       return NextResponse.json({ error: 'Invalid response format from AI.' }, { status: 500 });
     }
 
     const {
-  score = null,
-  missingSkills = null,
-  suggestions = null,
-  detailedSuggestions = null,
-} = parsed || {};
+      score = null,
+      missingSkills = null,
+      suggestions = null,
+      detailedSuggestions = null,
+    } = parsed || {};
 
-if (!score || !missingSkills || !suggestions || !detailedSuggestions) {
-  console.error(' One or more required fields are missing from the parsed response:', parsed);
-  return NextResponse.json(
-    { error: 'Incomplete analysis data returned from AI.' },
-    { status: 500 }
-  );
-}
+    if (!score || !missingSkills || !suggestions || !detailedSuggestions) {
+      console.error('One or more required fields are missing from the parsed response:', parsed);
+      return NextResponse.json(
+        { error: 'Incomplete analysis data returned from AI.' },
+        { status: 500 }
+      );
+    }
 
-return NextResponse.json(
-  {
-    modelUsed: 'deepseek/deepseek-chat:free',
-    score,
-    missingSkills,
-    suggestions,
-    detailedSuggestions
-  },
-  { status: 200 }
-);
-
-
+    return NextResponse.json(
+      {
+        modelUsed: 'deepseek/deepseek-chat:free',
+        score,
+        missingSkills,
+        suggestions,
+        detailedSuggestions,
+      },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Internal server error during resume analysis:', error);
     return NextResponse.json({ error: 'server_fail' }, { status: 500 });

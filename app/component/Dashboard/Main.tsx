@@ -86,6 +86,68 @@ import { openModal, closeModal } from '@/app/Slices/modalSLice';
       status: "completed",
     },
   ];
+  const analysisData = {
+    score: {
+      title: "Match Score",
+      value: 85,
+    },
+    missingSkills: {
+      title: "Missing Skills or Experiences",
+      value: [
+        {
+          name: "TypeScript",
+          importance: "high",
+        },
+        {
+          name: "GraphQL",
+          importance: "medium",
+        },
+        {
+          name: "Docker",
+          importance: "low",
+        },
+      ],
+    },
+    suggestions: {
+      title: "Suggestions to Improve Resume",
+      value:
+        "Add experience with TypeScript and highlight backend project work.",
+    },
+    skills: [
+      {
+        name: "React.js",
+        importance: "high",
+        note: "Required for 89% of frontend roles",
+      },
+      {
+        name: "AWS Cloud",
+        importance: "medium",
+        note: "Mentioned in job description",
+      },
+      {
+        name: "Node.js",
+        importance: "low",
+        note: "Growing demand in backend development",
+      },
+    ],
+    detailedSuggestions: [
+      {
+        title: "Include more measurable achievements",
+        status: "improvement",
+        note: "Quantifying your results (e.g., 'improved load speed by 40%') makes your resume more compelling.",
+      },
+      {
+        title: "Highlight relevant backend experience",
+        status: "critical",
+        note: "The job emphasizes full-stack skills, but your backend experience is limited or unclear.",
+      },
+      {
+        title: "Tailor your summary to the job",
+        status: "success",
+        note: "Your summary already aligns well with the job's core requirements.",
+      },
+    ],
+  };
 
 
   const skillGaps = [
@@ -246,7 +308,7 @@ const Main = () => {
   <textarea
     placeholder="Click here to paste the job Row or Position..."
     className="w-full h-32 p-3 bg-[#334155] border border-[#334155] rounded-md text-white placeholder-neutral-400 resize-none focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-colors"
-    maxLength={24}
+    maxLength={40}
     onClick={(e) => {
       e.currentTarget.focus();
     }}
@@ -254,7 +316,7 @@ const Main = () => {
     onChange={(e) => setJobRow(e.target.value)}
   />
   <p className="text-sm text-neutral-500 text-right mt-2">
-    {jobRow.length}/24 characters
+    {jobRow.length}/40 characters
   </p>
 </div>
                 </div>
@@ -288,7 +350,7 @@ const Main = () => {
                         {latestScore}
                       </p>
                       <p className="text-neutral-400 text-xs sm:text-sm">
-                        Latest Score
+                         Score
                       </p>
                     </div>
                   </div>
@@ -440,6 +502,69 @@ const Main = () => {
     <p className="text-white text-base leading-relaxed">
       {analysis?.suggestions?.value || "No suggestions provided. Please analyze your resume."}
     </p>
+  </div>
+</div>
+ <div className="space-y-3">
+  <h3 className="text-lg font-semibold text-white flex items-center">
+    <TrendingUp className="w-5 h-5 mr-2 text-yellow-400" />
+    Detailed Suggestions
+  </h3>
+
+  <div className="space-y-3">
+    {analysis?.detailedSuggestions.map((suggestion, index) => {
+      const getIcon = (status: string) => {
+        switch (status) {
+          case "critical":
+            return AlertCircle;
+          case "improvement":
+            return TrendingUp;
+          case "success":
+            return CheckCircle;
+          default:
+            return CheckCircle;
+        }
+      };
+
+      const Icon = getIcon(suggestion.status);
+
+      const statusColors = {
+        critical: {
+          icon: "text-red-400",
+          badgeBg: "bg-red-900/30",
+          badgeText: "text-red-300",
+        },
+        improvement: {
+          icon: "text-yellow-400",
+          badgeBg: "bg-yellow-900/30",
+          badgeText: "text-yellow-300",
+        },
+        success: {
+          icon: "text-green-400",
+          badgeBg: "bg-green-900/30",
+          badgeText: "text-green-300",
+        },
+      };
+
+      const color = statusColors[suggestion.status as keyof typeof statusColors] || statusColors.success;
+
+      return (
+        <div
+          key={index}
+          className="flex items-start space-x-3 p-6 rounded-lg bg-[#334155]/30 hover:bg-[#334155]/50 transition-colors border border-[#334155]"
+        >
+          <Icon className={`w-5 h-5 mt-0.5 ${color.icon}`} />
+
+          <div className="flex-1">
+            <h4 className="font-medium text-white">{suggestion.title}</h4>
+            <p className="text-sm text-neutral-300 mt-1">{suggestion.note}</p>
+          </div>
+
+          <span className={`text-xs px-2 py-1 rounded ${color.badgeBg} ${color.badgeText}`}>
+            {suggestion.status}
+          </span>
+        </div>
+      );
+    })}
   </div>
 </div>
 
