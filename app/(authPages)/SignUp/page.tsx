@@ -9,7 +9,6 @@ import Link from "next/link";
 import { createUserWithEmailAndPassword, sendEmailVerification /* , signInWithEmailAndPassword */ } from "firebase/auth";
 import { getDoc, doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/app/lib/Firebase";
-
 import {
   FileText,
   Eye,
@@ -36,10 +35,27 @@ const SignUp = () => {
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
 
+
+  // Password requirements
+   const passwordRequirements = [
+    { label: "At least 8 characters", met: formData.password.length >= 8 },
+    {
+      label: "Contains uppercase letter",
+      met: /[A-Z]/.test(formData.password),
+    },
+    {
+      label: "Contains lowercase letter",
+      met: /[a-z]/.test(formData.password),
+    },
+    { label: "Contains number", met: /\d/.test(formData.password) },
+  ];
+
+
   const handleGoogleSignUp = () => {
     // Handle Google sign up logic here
     console.log("Google sign up clicked");
   };
+
 
  const handleEmailSignUp = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -52,6 +68,10 @@ const SignUp = () => {
 
   if (!agreedToTerms) {
     setError("You must agree to the terms and conditions");
+    return;
+  }
+  if(passwordRequirements.some(req => !req.met)) {
+    setError("Password does not meet the requirements");
     return;
   }
 
@@ -74,9 +94,10 @@ const SignUp = () => {
     if (!userDoc.exists()) {
       await setDoc(userRef, {
         displayName:
-          user.displayName || `${formData.firstName} ${formData.lastName}`,
+        user.displayName || `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         allowResumeSaving: true,
+        isEmailverified: false,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         history: {},
@@ -84,18 +105,24 @@ const SignUp = () => {
     }
 
     // Optional: notify user
-    setSuccess("Account created! Please check your email to verify your account.");
+    setSuccess("Account created! Please check your email to verify your account.Then login to continue.");
+    setError(null);
     return { success: true, user };
 
-  } catch (error: any) {
-    if (error.code === "auth/email-already-in-use") {
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "auth/email-already-in-use"
+    ) {
       setError("An account with this email already exists. Please sign in.");
       return { success: false, error: "Email already in use" };
     }
 
     console.error("Sign-up error:", error);
     setError("Sign-up failed. Please try again.");
-    return { success: false, error: error.message };
+    return { success: false, error: typeof error === "object" && error !== null && "message" in error ? (error as { message?: string }).message : String(error) };
   }
 };
 
@@ -104,18 +131,7 @@ const SignUp = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const passwordRequirements = [
-    { label: "At least 8 characters", met: formData.password.length >= 8 },
-    {
-      label: "Contains uppercase letter",
-      met: /[A-Z]/.test(formData.password),
-    },
-    {
-      label: "Contains lowercase letter",
-      met: /[a-z]/.test(formData.password),
-    },
-    { label: "Contains number", met: /\d/.test(formData.password) },
-  ];
+ 
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">
