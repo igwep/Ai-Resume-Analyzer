@@ -9,11 +9,33 @@ Project To-Do: AI Resume Analyzer
 2. Database Integration
 - [ ] Choose DB (Firebase Firestore, Supabase, PostgreSQL, etc.).
 - [ ] Create schema:
-      - userId
-      - fileName
-      - analysisResult (JSON)
-      - improvementScore
-      - createdAt
+      users: {
+  [userId]: {
+    displayName: string
+    email: string
+    allowResumeSaving: boolean
+    createdAt: Timestamp
+    updatedAt: Timestamp
+
+    history: {
+      [resumeId]: {
+        resumeName: string
+        jobDescription: string
+        score: number
+        missingSkills: string[]
+        suggestions: string
+        detailedSuggestions: {
+          title: string
+          status: "critical" | "improvement" | "success"
+          note: string
+        }[]
+        createdAt: Timestamp
+        improvementScore: number // optional comparison to previous resume
+      }
+    }
+  }
+}
+
 - [ ] Implement save logic after each successful analysis.
 - [ ] Connect front-end to fetch and display past records per user.
 

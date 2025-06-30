@@ -1,66 +1,32 @@
-"use client"
+"use client";
 import { Button } from "@/app/component/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/component/ui/Cards";
 import { Input } from "@/app/component/ui/Input";
 import Label from "@/app/component/ui/Label";
 import { Separator } from "@/app/component/ui/Seperator";
-import { Checkbox } from "@/app/component/ui/Checkbox";
-import Link from "next/link";
-import {
-  FileText,
-  Eye,
-  EyeOff,
-  Mail,
-  Lock,
-  User,
-  ArrowLeft,
-  Check,
-} from "lucide-react";
+import { FileText, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
-const SignUp = () => {
+const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleGoogleSignUp = () => {
-    // Handle Google sign up logic here
-    console.log("Google sign up clicked");
+  const handleGoogleSignIn = () => {
+    // Handle Google sign in logic here
+    console.log("Google sign in clicked");
   };
 
-  const handleEmailSignUp = (e: React.FormEvent) => {
+  const handleEmailSignIn = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle email sign up logic here
-    console.log("Email sign up:", formData);
+    // Handle email sign in logic here
+    console.log("Email sign in:", { email, password });
   };
-
-  const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const passwordRequirements = [
-    { label: "At least 8 characters", met: formData.password.length >= 8 },
-    {
-      label: "Contains uppercase letter",
-      met: /[A-Z]/.test(formData.password),
-    },
-    {
-      label: "Contains lowercase letter",
-      met: /[a-z]/.test(formData.password),
-    },
-    { label: "Contains number", met: /\d/.test(formData.password) },
-  ];
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
+      <div className="w-[448px] mx-auto space-y-6">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2">
@@ -70,26 +36,26 @@ const SignUp = () => {
             <span className="text-2xl font-bold text-white">ResumeAI</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">Create an account</h1>
+            <h1 className="text-2xl font-bold text-white">Welcome back</h1>
             <p className="text-neutral-400 mt-2">
-              Start optimizing your resume with AI
+              Sign in to your account to continue
             </p>
           </div>
         </div>
 
-        {/* Sign Up Card */}
+        {/* Sign In Card */}
         <Card className="border-[#334155] bg-[#1E293B]">
           <CardHeader className="space-y-1">
             <CardTitle className="text-xl text-white text-center">
-              Sign up for free
+              Sign in to your account
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Google Sign Up */}
+            {/* Google Sign In */}
             <Button
               variant="outline"
               className="w-full border-[#475569] text-white hover:bg-[#334155] h-12"
-              onClick={handleGoogleSignUp}
+              onClick={handleGoogleSignIn}
             >
               <svg
                 className="w-5 h-5 mr-3"
@@ -115,47 +81,8 @@ const SignUp = () => {
               </div>
             </div>
 
-            {/* Email Sign Up Form */}
-            <form onSubmit={handleEmailSignUp} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-white">
-                    First Name
-                  </Label>
-                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#94A3B8] w-4 h-4" />
-                    <Input
-                      id="firstName"
-                      type="text"
-                      placeholder="First name"
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        handleInputChange("firstName", e.target.value)
-                      }
-                      className="pl-10 bg-[#334155] border-[#475569] text-white placeholder-[#94A3B8] focus:border-brand-500 focus:ring-brand-500"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-white">
-                    Last Name
-                  </Label>
-                  <Input
-                    id="lastName"
-                    type="text"
-                    placeholder="Last name"
-                    value={formData.lastName}
-                    onChange={(e) =>
-                      handleInputChange("lastName", e.target.value)
-                    }
-                    className="bg-[#334155] border-[#475569] text-white placeholder-[#94A3B8]  focus:border-brand-500 focus:ring-brand-500"
-                    required
-                  />
-                </div>
-              </div>
-
+            {/* Email Sign In Form */}
+            <form onSubmit={handleEmailSignIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-white">
                   Email
@@ -166,9 +93,9 @@ const SignUp = () => {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={(e) => handleInputChange("email", e.target.value)}
-                    className="pl-10 bg-[#334155] border-[#475569] text-white placeholder-[#94A3B8]  focus:border-brand-500 focus:ring-brand-500"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="pl-10  bg-[#334155] border-[#475569] text-white placeholder-[#94A3B8] focus:border-brand-500 focus:ring-brand-500"
                     required
                   />
                 </div>
@@ -183,12 +110,10 @@ const SignUp = () => {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create password"
-                    value={formData.password}
-                    onChange={(e) =>
-                      handleInputChange("password", e.target.value)
-                    }
-                    className="pl-10 pr-10 bg-[#334155] border-[#475569] text-white placeholder-[#94A3B8]  focus:border-brand-500 focus:ring-brand-500"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="pl-10 pr-10 bg-[#334155] border-[#475569] text-white placeholder-[#94A3B8] focus:border-brand-500 focus:ring-brand-500"
                     required
                   />
                   <button
@@ -203,109 +128,43 @@ const SignUp = () => {
                     )}
                   </button>
                 </div>
-
-                {/* Password Requirements */}
-                {formData.password && (
-                  <div className="mt-2 space-y-1">
-                    {passwordRequirements.map((req, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        <Check
-                          className={`w-3 h-3 ${
-                            req.met ? "text-green-400" : "text-neutral-500"
-                          }`}
-                        />
-                        <span
-                          className={`text-xs ${
-                            req.met ? "text-green-400" : "text-neutral-500"
-                          }`}
-                        >
-                          {req.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-white">
-                  Confirm Password
-                </Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#94A3B8] w-4 h-4" />
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm password"
-                    value={formData.confirmPassword}
-                    onChange={(e) =>
-                      handleInputChange("confirmPassword", e.target.value)
-                    }
-                    className="pl-10 pr-10 bg-[#334155] border-[#475569] text-white placeholder-[#94A3B8]  focus:border-brand-500 focus:ring-brand-500"
-                    required
+              <div className="flex items-center justify-between">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    className="rounded border-neutral-600 bg-neutral-700 text-brand-600 focus:ring-brand-500"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-neutral-400 hover:text-white"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="w-4 h-4 text-[#94A3B8]" />
-                    ) : (
-                      <Eye className="w-4 h-4 text-[#94A3B8]" />
-                    )}
-                  </button>
-                </div>
-                {formData.confirmPassword &&
-                  formData.password !== formData.confirmPassword && (
-                    <p className="text-xs text-red-400">
-                      Passwords do not match
-                    </p>
-                  )}
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={agreedToTerms}
-                  onCheckedChange={checked => setAgreedToTerms(checked === true)}
-                  className="border-[#94A3B8] data-[state=checked]:bg-brand-600"
-                />
-                <label htmlFor="terms" className="text-sm text-[#94A3B8]">
-                  I agree to the{" "}
-                  <a href="#" className="text-[#60A5FA] hover:text-[#99bde9]">
-                    Terms of Service
-                  </a>{" "}
-                  and{" "}
-                  <a href="#" className="text-[#60A5FA] hover:text-[#99bde9]">
-                    Privacy Policy
-                  </a>
+                  <span className="text-sm text-[#94A3B8]">Remember me</span>
                 </label>
+                <a
+                  href="#"
+                  className="text-sm text-[#60A5FA] hover:text-[#99bde9]"
+                >
+                  Forgot password?
+                </a>
               </div>
 
               <Button
                 type="submit"
-                disabled={
-                  !agreedToTerms ||
-                  formData.password !== formData.confirmPassword
-                }
-                className="w-full bg-brand-600 hover:bg-brand-700 text-white h-12 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-brand-600 hover:bg-brand-700 text-white h-12"
               >
-                Create account
+                Sign in
               </Button>
             </form>
           </CardContent>
         </Card>
 
-        {/* Sign In Link */}
+        {/* Sign Up Link */}
         <div className="text-center">
-          <p className="text-neutral-400">
-            Already have an account?{" "}
+          <p className="text-[#94A3B8]">
+            Don&apos;t have an account?{" "}
             <a
-              href="/signin"
-              className="text-brand-400 hover:text-brand-300 font-medium"
+              href="/signup"
+              className="text-[#60A5FA] hover:text-[#99bde9] font-medium"
             >
-              Sign in
+              Sign up
             </a>
           </p>
         </div>
@@ -325,4 +184,4 @@ const SignUp = () => {
   );
 };
 
-export default SignUp;
+export default SignIn;
