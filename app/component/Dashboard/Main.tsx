@@ -260,7 +260,7 @@ const Main = () => {
       className={`border-2 border-dashed rounded-lg p-6 sm:p-8 text-center cursor-pointer transition-colors ${
         dragActive
           ? "border-brand-400 bg-brand-900/20"
-          : "border-neutral-600 hover:border-neutral-500"
+          : "border-[#334155] hover:border-neutral-500"
       }`}
       onClick={handleClick}
       onDragEnter={handleDrag}
@@ -282,7 +282,7 @@ const Main = () => {
       </p>
       <Button
         variant="outline"
-        className="border-neutral-600 text-neutral-300 hover:bg-neutral-700"
+        className="border-[#334155] text-neutral-300 hover:bg-blue-900/30"
         onClick={(e) => {
           e.stopPropagation();
           handleClick();
@@ -297,7 +297,7 @@ const Main = () => {
     </div>
 
                   {/* Job Description Upload */}
-          <div className="border-2 border-dashed border-neutral-600 rounded-lg p-6 sm:p-8 hover:border-neutral-500 transition-colors">
+          <div className="border-2 border-dashed border-[#334155] rounded-lg p-6 sm:p-8 hover:border-neutral-500 transition-colors">
   <Target className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
   <h3 className="text-lg font-medium text-white mb-2">
     Job Role or Postion
@@ -323,7 +323,7 @@ const Main = () => {
                  <div className="flex justify-center mt-6">
                   <Button
                     size="lg"
-                    className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 text-lg font-semibold min-w-[200px] shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-[#2563EB] hover:bg-[#4681ff] text-white px-8 py-4 text-lg font-semibold min-w-[200px] shadow-lg hover:shadow-xl transition-all duration-200"
                     onClick={() => {
                       handleUpload()
                       // Handle analysis start logic here

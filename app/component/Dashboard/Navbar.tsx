@@ -52,7 +52,7 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
             </div>
             <Button
               size="sm"
-              className="bg-brand-600 hover:bg-brand-700 text-white"
+              className="bg-[#2563EB] hover:bg-[#4681ff] text-white"
             >
               <Plus className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">New Analysis</span>

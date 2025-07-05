@@ -58,14 +58,14 @@ const Navbar = () => {
                onClick={() => (window.location.href = "/SignUp")}
                 variant="outline"
                 size="sm"
-                className="border-neutral-600  text-neutral-300 hover:bg-[#1E3A8A] hover:text-white"
+                className="border-[#334155]  text-neutral-300 hover:bg-[#1E3A8A] hover:text-white"
               >
                 Sign in
               </Button>
               <Button
                onClick={() => (window.location.href = "/dashboard")}
                 size="sm"
-                className="bg-brand-600 hover:bg-brand-700 text-white"
+                className="bg-[#2563EB] hover:bg-[#4681ff] text-white"
               >
                 Get started
               </Button>

@@ -7,21 +7,59 @@ import { Separator } from "@/app/component/ui/Seperator";
 import { FileText, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+//import { getDoc, doc } from "firebase/firestore";
+//import { db } from "@/app/lib/Firebase";
+import { useSignIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
+//import { useAuth } from "@clerk/nextjs";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const { signIn, isLoaded } = useSignIn();
+  const router = useRouter();
+
+
 
   const handleGoogleSignIn = () => {
     // Handle Google sign in logic here
     console.log("Google sign in clicked");
   };
 
-  const handleEmailSignIn = (e: React.FormEvent) => {
+  const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle email sign in logic here
-    console.log("Email sign in:", { email, password });
+     e.preventDefault();
+
+    if (!isLoaded) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const result = await signIn.create({
+        identifier: email,
+        password,
+      });
+
+      if (result.status === "complete") {
+        //await signIn.authenticateWithRedirect();
+        // OR manually redirect if not using Clerk redirect flow:
+       router.push("/dashboard");
+      } else {
+        console.log("Additional steps required: ", result);
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(
+        err?.errors?.[0]?.message || "Something went wrong. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -80,6 +118,10 @@ const SignIn = () => {
                 </span>
               </div>
             </div>
+            {error && (
+                  <p className="text-red-500 text-sm text-center">
+    {error}
+  </p>)}
 
             {/* Email Sign In Form */}
             <form onSubmit={handleEmailSignIn} className="space-y-4">
@@ -148,9 +190,15 @@ const SignIn = () => {
 
               <Button
                 type="submit"
-                className="w-full bg-brand-600 hover:bg-brand-700 text-white h-12"
+                disabled={isLoading}
+                className="w-full bg-[#2563EB] hover:bg-[#4681ff] flex items-center gap-3  text-white h-12"
               >
-                Sign in
+                <span>Sign In</span> {
+                          isLoading && (
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+
+                          )
+                }
               </Button>
             </form>
           </CardContent>
@@ -161,7 +209,7 @@ const SignIn = () => {
           <p className="text-[#94A3B8]">
             Don&apos;t have an account?{" "}
             <a
-              href="/signup"
+              href="/SignUp"
               className="text-[#60A5FA] hover:text-[#99bde9] font-medium"
             >
               Sign up

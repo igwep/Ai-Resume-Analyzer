@@ -62,7 +62,7 @@ export const Hero = () => {
             <Button
              onClick={() => (window.location.href = "/Dashboard")}
               size="lg"
-              className="bg-[#2563EB] hover:bg-brand-700 text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto"
+              className="bg-[#2563EB] hover:bg-[#4681ff] text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto"
             >
               <Upload className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
               Analyze My Resume
@@ -70,7 +70,7 @@ export const Hero = () => {
             <Button
               variant="outline"
               size="lg"
-              className="border-neutral-600 text-neutral-300 hover:bg-[#1E3A8A] hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto"
+              className="border-[#334155] text-neutral-300 hover:bg-[#1E3A8A] hover:text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg w-full sm:w-auto"
             >
               <Play className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
               Watch Demo
