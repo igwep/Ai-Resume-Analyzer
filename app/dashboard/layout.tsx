@@ -5,7 +5,12 @@ import Sidebar from "../component/Dashboard/Sidebar";
 import { Provider } from "react-redux";
 import { store } from "../Store";
 import GlobalLoader from "../component/GlobarLoader";
-import { SignedIn, SignedOut, RedirectToSignIn } from "@clerk/nextjs";
+import {
+  SignedIn,
+  SignedOut,
+  RedirectToSignIn,
+  useAuth,
+} from "@clerk/nextjs";
 
 export default function DashboardLayout({
   children,
@@ -13,10 +18,12 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isLoaded } = useAuth(); // ✅ wait for Clerk to be ready
+
+  if (!isLoaded) return null; // Or a loader if you want
 
   return (
     <div className="min-h-screen bg-[#0F172A]">
-      {/* Only show content if signed in */}
       <SignedIn>
         <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
@@ -40,9 +47,8 @@ export default function DashboardLayout({
         </div>
       </SignedIn>
 
-      {/* Redirect to sign-in page if not signed in */}
       <SignedOut>
-        <RedirectToSignIn />
+        <RedirectToSignIn redirectUrl="/SignIn" />
       </SignedOut>
     </div>
   );

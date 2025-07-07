@@ -1,5 +1,5 @@
 "use client";
-import React,{useState, useRef} from 'react'
+import React,{useState, useRef, useEffect} from 'react'
  import { useAppDispatch, useAppSelector } from '@/app/hooks/useTypedHooks';
  import { startLoading, stopLoading } from '@/app/Slices/LoaderSlice';
 import { setAnalysisResult, /* clearAnalysisResult */ } from '@/app/Slices/analysisSlice'
@@ -31,6 +31,8 @@ import {
 } from "lucide-react";
 import { Progress } from '../ui/Progress';
 import { openModal, closeModal } from '@/app/Slices/modalSLice';
+import { useAuth } from '@clerk/nextjs';
+import { fetchFirebaseUser } from "@/app/Slices/userSlice";
 
  interface AnalysisResult {
   score: {
@@ -165,9 +167,14 @@ const Main = () => {
     //const {openModal, closeModal} = useAppDispatch();
     /* const { isLoading, message } = useAppSelector((state) => state.loader); */
  const analysis = useAppSelector((state) => state.analysis.result) as AnalysisResult | null;
+ const { userId } = useAuth();
 
    
-
+useEffect(() => {
+  if (userId) {
+    dispatch(fetchFirebaseUser(userId));
+  }
+}, [userId]);
 
     const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();

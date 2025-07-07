@@ -1,3 +1,6 @@
+"use client";
+import { Provider } from "react-redux";
+import { store } from "../Store"; // Adjust the import path as necessary
 export default function AuthPageLayout({
   children,
 }: {
@@ -5,7 +8,9 @@ export default function AuthPageLayout({
 }) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
-      {children}
+     <Provider store={store}>
+       {children}
+      </Provider>
     </div>
   );
 }

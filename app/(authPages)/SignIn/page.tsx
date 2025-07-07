@@ -5,13 +5,20 @@ import { Input } from "@/app/component/ui/Input";
 import Label from "@/app/component/ui/Label";
 import { Separator } from "@/app/component/ui/Seperator";
 import { FileText, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useState,  /* useEffect */  } from "react";
 import Link from "next/link";
 //import { getDoc, doc } from "firebase/firestore";
 //import { db } from "@/app/lib/Firebase";
 import { useSignIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+
+//import { useAppDispatch } from "@/app/hooks/useTypedHooks";
 //import { useAuth } from "@clerk/nextjs";
+//import { fetchFirebaseUser } from "@/app/Slices/userSlice";
+
+
+
+
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,6 +28,9 @@ const SignIn = () => {
   const [error, setError] = useState<string | null>(null);
   const { signIn, isLoaded } = useSignIn();
   const router = useRouter();
+  //const { userId , isSignedIn  } = useAuth();
+  
+ // const dispatch = useAppDispatch();
 
 
 
@@ -32,7 +42,6 @@ const SignIn = () => {
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     // Handle email sign in logic here
-     e.preventDefault();
 
     if (!isLoaded) return;
 
@@ -43,12 +52,18 @@ const SignIn = () => {
       const result = await signIn.create({
         identifier: email,
         password,
+       
       });
 
-      if (result.status === "complete") {
-        //await signIn.authenticateWithRedirect();
-        // OR manually redirect if not using Clerk redirect flow:
+      if (result.status === "complete" && result.createdSessionId) {
+        // Sign in was successful, redirect to dashboard
+        console.log("Sign in successful, redirecting...");
+        
+        
+        // Fetch user data from Firestore if needed
+        // await dispatch(fetchFirebaseUser(userId));
        router.push("/dashboard");
+ 
       } else {
         console.log("Additional steps required: ", result);
       }
@@ -61,6 +76,14 @@ const SignIn = () => {
       setIsLoading(false);
     }
   };
+/*   useEffect(() => {
+  if (isSignedIn && userId) {
+    // Now Clerk is ready, redirect and fetch Firestore
+    dispatch(fetchFirebaseUser(userId)); 
+   console.log("User ID:", userId);
+    router.push("/dashboard");
+  }
+}, [isSignedIn, userId]); */
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">

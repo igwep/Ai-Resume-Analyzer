@@ -2,12 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import loaderReducer from "./Slices/LoaderSlice";
 import analysisReducer from "./Slices/analysisSlice";
 import modalReducer from "./Slices/modalSLice";
+import userReducer from "./Slices/userSlice";
 
 export const store = configureStore({
   reducer: {
     loader: loaderReducer,
     analysis: analysisReducer,
     modal: modalReducer,
+    user: userReducer,
     
   },
 });
