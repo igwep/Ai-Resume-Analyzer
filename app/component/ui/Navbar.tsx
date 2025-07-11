@@ -19,9 +19,32 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 const Navbar = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+   const menuVariants: Variants = {
+  hidden: { opacity: 0, y: -20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: "spring" as const, // ✅ Explicit type
+      stiffness: 300,
+      damping: 24,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: -20,
+    transition: {
+      duration: 0.2,
+      ease: "easeInOut",
+    },
+  },
+};
+
   return (
  <header className="border-b border-[#334155] bg-[#020817]/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,42 +106,58 @@ const Navbar = () => {
               )}
             </button>
           </div>
-
           {/* Mobile Navigation */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden border-t border-neutral-700 py-4">
-              <div className="flex flex-col space-y-4">
-                <a
-                  href="#features"
-                  className="text-neutral-300 hover:text-white text-sm font-medium transition-colors px-2 py-1"
-                >
-                  Features
-                </a>
-                <a
-                  href="#how-it-works"
-                  className="text-neutral-300 hover:text-white text-sm font-medium transition-colors px-2 py-1"
-                >
-                  How it works
-                </a>
-                
-                <div className="flex flex-col space-y-2 pt-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white w-full"
-                  >
-                    Sign in
-                  </Button>
-                  <Button
-                    size="sm"
-                    className="bg-[#2563EB] hover:bg-brand-700 text-white w-full"
-                  >
-                    Get started
-                  </Button>
-                </div>
-              </div>
-            </div>
-          )}
+       <AnimatePresence>
+  {mobileMenuOpen && (
+    <motion.div
+      key="mobile-menu"
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+      variants={menuVariants}
+      className="lg:hidden border-t border-neutral-700 py-4"
+    >
+      <div className="flex flex-col space-y-4">
+        <a
+          href="#testimonial"
+          className="text-neutral-300 hover:text-white text-sm font-medium transition-colors px-2 py-1"
+        >
+          Testimonials
+        </a>
+        <a
+          href="#features"
+          className="text-neutral-300 hover:text-white text-sm font-medium transition-colors px-2 py-1"
+        >
+          Features
+        </a>
+        <a
+          href="#how-it-works"
+          className="text-neutral-300 hover:text-white text-sm font-medium transition-colors px-2 py-1"
+        >
+          How it works
+        </a>
+
+        <div className="flex flex-col space-y-2 pt-2">
+          <Button
+            onClick={() => (window.location.href = "/SignUp")}
+            variant="outline"
+            size="sm"
+            className="border-neutral-600 text-neutral-300 hover:bg-neutral-800 hover:text-white w-full"
+          >
+            Sign in
+          </Button>
+          <Button
+            onClick={() => (window.location.href = "/dashboard")}
+            size="sm"
+            className="bg-[#2563EB] hover:bg-brand-700 text-white w-full"
+          >
+            Get started
+          </Button>
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
         </div>
       </header>
   )

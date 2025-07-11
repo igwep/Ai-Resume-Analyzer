@@ -5,15 +5,16 @@ import { Input } from "@/app/component/ui/Input";
 import Label from "@/app/component/ui/Label";
 import { Separator } from "@/app/component/ui/Seperator";
 import { FileText, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useState,  /* useEffect */  } from "react";
+import { useState  } from "react";
 import Link from "next/link";
-//import { getDoc, doc } from "firebase/firestore";
-//import { db } from "@/app/lib/Firebase";
-import { useSignIn } from "@clerk/nextjs";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "@/app/lib/Firebase";
 import { useRouter } from "next/navigation";
+import { auth } from "@/app/lib/Firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 //import { useAppDispatch } from "@/app/hooks/useTypedHooks";
-//import { useAuth } from "@clerk/nextjs";
+
 //import { fetchFirebaseUser } from "@/app/Slices/userSlice";
 
 
@@ -21,18 +22,20 @@ import { useRouter } from "next/navigation";
 
 
 const SignIn = () => {
+
+  
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  
   const [error, setError] = useState<string | null>(null);
-  const { signIn, isLoaded } = useSignIn();
   const router = useRouter();
-  //const { userId , isSignedIn  } = useAuth();
+
   
  // const dispatch = useAppDispatch();
 
-
+   
 
   const handleGoogleSignIn = () => {
     // Handle Google sign in logic here
@@ -43,47 +46,70 @@ const SignIn = () => {
     e.preventDefault();
     // Handle email sign in logic here
 
-    if (!isLoaded) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await signIn.create({
-        identifier: email,
-        password,
-       
-      });
-
-      if (result.status === "complete" && result.createdSessionId) {
-        // Sign in was successful, redirect to dashboard
-        console.log("Sign in successful, redirecting...");
-        
-        
-        // Fetch user data from Firestore if needed
-        // await dispatch(fetchFirebaseUser(userId));
-       router.push("/dashboard");
+     e.preventDefault();
+  setIsLoading(true);
+  setError(null);
  
-      } else {
-        console.log("Additional steps required: ", result);
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(
-        err?.errors?.[0]?.message || "Something went wrong. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
+
+  try {
+    // Sign in the user
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
+
+    // Check if email is verified
+    if (!user.emailVerified) {
+      setError("Please verify your email before signing in.");
+      return { success: false, error: "Email not verified" };
     }
-  };
-/*   useEffect(() => {
-  if (isSignedIn && userId) {
-    // Now Clerk is ready, redirect and fetch Firestore
-    dispatch(fetchFirebaseUser(userId)); 
-   console.log("User ID:", userId);
-    router.push("/dashboard");
+
+    // Optional: Fetch user data from Firestore
+    const userRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      setError("User record not found. Please contact support.");
+      return { success: false, error: "No user record found" };
+    }
+
+    // Success
+    router.push("/dashboard"); // Redirect to dashboard
+    setIsLoading(false);
+    
+    return { success: true, user };
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error
+    ) {
+      const err = error as { code?: string };
+      if (err.code === "auth/user-not-found") {
+        setError("No account found with this email.");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Incorrect password.");
+      } else if (err.code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Try again later.");
+      } else {
+        setError("Sign-in failed. Please try again.");
+      }
+
+      return { success: false, error: err.code };
+    }
+
+    setError("Sign-in failed. Please try again.");
+    console.error("Sign-in error:", error);
+    setIsLoading(false);
   }
-}, [isSignedIn, userId]); */
+  
+
+finally {
+    setIsLoading(false);}
+};
+
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">

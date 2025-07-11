@@ -5,12 +5,8 @@ import Sidebar from "../component/Dashboard/Sidebar";
 import { Provider } from "react-redux";
 import { store } from "../Store";
 import GlobalLoader from "../component/GlobarLoader";
-import {
-  SignedIn,
-  SignedOut,
-  RedirectToSignIn,
-  useAuth,
-} from "@clerk/nextjs";
+import { useFirebaseAuthGuard } from "../hooks/useFirebaseAuth";
+
 
 export default function DashboardLayout({
   children,
@@ -18,13 +14,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isLoaded } = useAuth(); // ✅ wait for Clerk to be ready
 
-  if (!isLoaded) return null; // Or a loader if you want
+ const { loading } = useFirebaseAuthGuard();
+if (loading) return null; // or a loader
+
 
   return (
     <div className="min-h-screen bg-[#0F172A]">
-      <SignedIn>
+      
         <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
         {/* Optional overlay for mobile */}
@@ -34,7 +31,6 @@ export default function DashboardLayout({
             onClick={() => setSidebarOpen(false)}
           />
         )}
-
         <div className="flex">
           <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
@@ -45,11 +41,6 @@ export default function DashboardLayout({
             </Provider>
           </main>
         </div>
-      </SignedIn>
-
-      <SignedOut>
-        <RedirectToSignIn redirectUrl="/SignIn" />
-      </SignedOut>
     </div>
   );
 }

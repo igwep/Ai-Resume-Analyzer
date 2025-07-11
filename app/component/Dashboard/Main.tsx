@@ -1,5 +1,5 @@
 "use client";
-import React,{useState, useRef, useEffect} from 'react'
+import React,{useState, useRef} from 'react'
  import { useAppDispatch, useAppSelector } from '@/app/hooks/useTypedHooks';
  import { startLoading, stopLoading } from '@/app/Slices/LoaderSlice';
 import { setAnalysisResult, /* clearAnalysisResult */ } from '@/app/Slices/analysisSlice'
@@ -30,9 +30,9 @@ import {
   Award,
 } from "lucide-react";
 import { Progress } from '../ui/Progress';
-import { openModal, closeModal } from '@/app/Slices/modalSLice';
-import { useAuth } from '@clerk/nextjs';
-import { fetchFirebaseUser } from "@/app/Slices/userSlice";
+import { openModal, /* closeModal */ } from '@/app/Slices/modalSLice';
+
+
 
  interface AnalysisResult {
   score: {
@@ -88,7 +88,7 @@ import { fetchFirebaseUser } from "@/app/Slices/userSlice";
       status: "completed",
     },
   ];
-  const analysisData = {
+/*   const analysisData = {
     score: {
       title: "Match Score",
       value: 85,
@@ -149,7 +149,7 @@ import { fetchFirebaseUser } from "@/app/Slices/userSlice";
         note: "Your summary already aligns well with the job's core requirements.",
       },
     ],
-  };
+  }; */
 
 
   const skillGaps = [
@@ -167,14 +167,10 @@ const Main = () => {
     //const {openModal, closeModal} = useAppDispatch();
     /* const { isLoading, message } = useAppSelector((state) => state.loader); */
  const analysis = useAppSelector((state) => state.analysis.result) as AnalysisResult | null;
- const { userId } = useAuth();
+ 
 
    
-useEffect(() => {
-  if (userId) {
-    dispatch(fetchFirebaseUser(userId));
-  }
-}, [userId]);
+
 
     const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
