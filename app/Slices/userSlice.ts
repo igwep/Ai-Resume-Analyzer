@@ -1,31 +1,5 @@
 // store/userSlice.ts
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../lib/Firebase";
-
-// Async thunk to fetch user data by Clerk ID
-
-export const fetchFirebaseUser = createAsyncThunk(
-  "user/fetchFirebaseUser",
-  async (userId: string) => {
-    const userRef = doc(db, "users", userId);
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-      throw new Error("User not found in Firestore");
-    }
-
-    const data = userSnap.data();
-
-    // Convert any Timestamp fields to strings (or Date if you prefer)
-    return {
-      ...data,
-      createdAt: data.createdAt?.toDate().toISOString() ?? null,
-      updatedAt: data.updatedAt?.toDate().toISOString() ?? null,
-    };
-  }
-);
-
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { DocumentData } from "firebase/firestore";
 
 interface UserState {
@@ -44,27 +18,24 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    clearUser: (state) => {
-      state.data = null;
+    setUser: (state, action: PayloadAction<DocumentData>) => {
+      state.data = action.payload;
+      state.loading = false;
       state.error = null;
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchFirebaseUser.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchFirebaseUser.fulfilled, (state, action) => {
-        state.loading = false;
-        state.data = action.payload;
-      })
-      .addCase(fetchFirebaseUser.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message ?? null;
-      });
+    clearUser: (state) => {
+      state.data = null;
+      state.loading = false;
+      state.error = null;
+    },
+    setUserLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setUserError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
+    },
   },
 });
 
-export const { clearUser } = userSlice.actions;
+export const { setUser, clearUser, setUserLoading, setUserError } = userSlice.actions;
 export default userSlice.reducer;

@@ -12,47 +12,37 @@ import { db } from "@/app/lib/Firebase";
 import { useRouter } from "next/navigation";
 import { auth } from "@/app/lib/Firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
-
+import { signIn } from "next-auth/react";
+import { fetchUserData } from "@/app/lib/fetchUserData";
+import { useAppDispatch } from "@/app/hooks/useTypedHooks";
 //import { useAppDispatch } from "@/app/hooks/useTypedHooks";
-
 //import { fetchFirebaseUser } from "@/app/Slices/userSlice";
 
 
-
-
-
 const SignIn = () => {
-
-  
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  
- // const dispatch = useAppDispatch();
-
-   
-
+  const dispatch = useAppDispatch();
   const handleGoogleSignIn = () => {
     // Handle Google sign in logic here
-    console.log("Google sign in clicked");
+    console.log("Google sign up clicked");
+    setIsLoading(true);
+    signIn("google", {
+      callbackUrl: "/dashboard",
+    });
   };
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle email sign in logic here
-
-     e.preventDefault();
+  e.preventDefault();
   setIsLoading(true);
   setError(null);
- 
 
   try {
-    // Sign in the user
     const userCredential = await signInWithEmailAndPassword(
       auth,
       email,
@@ -66,7 +56,7 @@ const SignIn = () => {
       return { success: false, error: "Email not verified" };
     }
 
-    // Optional: Fetch user data from Firestore
+    // Optional: Check Firestore user record exists
     const userRef = doc(db, "users", user.uid);
     const userDoc = await getDoc(userRef);
 
@@ -75,18 +65,17 @@ const SignIn = () => {
       return { success: false, error: "No user record found" };
     }
 
-    // Success
-    router.push("/dashboard"); // Redirect to dashboard
-    setIsLoading(false);
-    
+    // ✅ Fetch and store user data in Redux
+    await fetchUserData(user.uid, dispatch);
+
+    // ✅ Redirect after success
+    router.push("/dashboard");
     return { success: true, user };
+
   } catch (error: unknown) {
-    if (
-      typeof error === "object" &&
-      error !== null &&
-      "code" in error
-    ) {
+    if (typeof error === "object" && error !== null && "code" in error) {
       const err = error as { code?: string };
+
       if (err.code === "auth/user-not-found") {
         setError("No account found with this email.");
       } else if (err.code === "auth/wrong-password") {
@@ -102,17 +91,15 @@ const SignIn = () => {
 
     setError("Sign-in failed. Please try again.");
     console.error("Sign-in error:", error);
+  } finally {
+    setIsLoading(false);
   }
-  
-
-finally {
-    setIsLoading(false);}
 };
 
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">
-      <div className="w-[448px] mx-auto space-y-6">
+      <div className="mx-auto w-full max-w-md space-y-6 ">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2">

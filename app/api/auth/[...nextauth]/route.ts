@@ -136,8 +136,12 @@ const handler = NextAuth({
             name: user.name || "",
             email: user.email,
             image: user.image || "",
+            allowResumeSaving: true,
+            isEmailverified: true,
             createdAt: Timestamp.now(),
             updatedAt: Timestamp.now(),
+            history: {},
+            
           });
 
           console.log("✅ New user created:", uid);

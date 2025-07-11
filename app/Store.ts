@@ -10,10 +10,8 @@ export const store = configureStore({
     analysis: analysisReducer,
     modal: modalReducer,
     user: userReducer,
-    
   },
 });
-
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

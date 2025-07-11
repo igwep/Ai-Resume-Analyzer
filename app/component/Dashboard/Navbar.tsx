@@ -2,6 +2,9 @@ import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from '../ui/button';
 import { Plus, Menu } from 'lucide-react';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../Store';
+
 
 interface NavbarProps {
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,14 +16,18 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
    const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+  const user = useSelector((state: RootState) => state.user.data);
 
- /*    const getInitials = (name: string) =>
-  name
+  const getInitials = (name: string) =>
+      name
     .split(" ")
     .map((n) => n[0])
     .join("")
-    .toUpperCase(); */
+    .toUpperCase(); 
 
+  const userName = user ? user.displayName : "User";
+  console.log("User Name:", userName); // Log the user name for debugging
+  const initials = getInitials(userName);
   return (
         <header className="bg-[#1E293B] fixed top-0 w-full md:pl-72 border-b border-[#334155] px-6 py-4">
           <div className="flex items-center justify-between">
@@ -34,16 +41,15 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
               >
                 <Menu className="w-5 h-5" />
               </Button>
-
               <Avatar className="h-10 w-10">
                 <AvatarImage src="/placeholder-avatar.jpg" />
                 <AvatarFallback className="bg-[#2563EB] text-white">
-                  AS
+                  {initials}
                 </AvatarFallback>
               </Avatar>
               <div>
                 <h1 className="text-xl font-semibold text-white">
-                  Good morning, Alex! 👋
+                  Good morning, {userName} 👋
                 </h1>
                 <p className="text-sm text-neutral-400">
                   Ready to optimize your resume?
