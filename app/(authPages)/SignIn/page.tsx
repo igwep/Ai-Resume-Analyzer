@@ -102,7 +102,6 @@ const SignIn = () => {
 
     setError("Sign-in failed. Please try again.");
     console.error("Sign-in error:", error);
-    setIsLoading(false);
   }
   
 
