@@ -25,7 +25,7 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
     .join("")
     .toUpperCase(); 
 
-  const userName = user ? user.displayName : "User";
+  const userName = user ? user.name : "User";
   console.log("User Name:", userName); // Log the user name for debugging
   const initials = getInitials(userName);
   return (

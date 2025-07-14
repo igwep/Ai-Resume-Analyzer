@@ -98,8 +98,7 @@ const SignUp = () => {
 
     if (!userDoc.exists()) {
       await setDoc(userRef, {
-        displayName:
-        user.displayName || `${formData.firstName} ${formData.lastName}`,
+        name: user.displayName || `${formData.firstName} ${formData.lastName}`,
         email: formData.email,
         allowResumeSaving: true,
         isEmailverified: false,

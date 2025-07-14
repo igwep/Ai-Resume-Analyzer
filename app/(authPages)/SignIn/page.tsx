@@ -65,10 +65,10 @@ const SignIn = () => {
       return { success: false, error: "No user record found" };
     }
 
-    // ✅ Fetch and store user data in Redux
+    //  Fetch and store user data in Redux
     await fetchUserData(user.uid, dispatch);
 
-    // ✅ Redirect after success
+    //  Redirect after success
     router.push("/dashboard");
     return { success: true, user };
 

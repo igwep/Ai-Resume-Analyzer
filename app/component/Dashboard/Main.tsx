@@ -89,7 +89,7 @@ import { openModal, /* closeModal */ } from '@/app/Slices/modalSLice';
     },
   ];
 /*   const analysisData = {
-    score: {
+    score: {`
       title: "Match Score",
       value: 85,
     },
@@ -168,10 +168,6 @@ const Main = () => {
     /* const { isLoading, message } = useAppSelector((state) => state.loader); */
  const analysis = useAppSelector((state) => state.analysis.result) as AnalysisResult | null;
  
-
-   
-
-
     const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -491,8 +487,6 @@ const Main = () => {
   )}
 </div>
 
-
-
 {/* Suggestions Section */}
                  <div className="space-y-3">
   <h3 className="text-lg font-semibold text-white flex items-center">
@@ -603,7 +597,6 @@ const Main = () => {
     </CardContent>
   </Card>
 </div>
-
   {/* History Panel */}
               <div className="space-y-6">
                 <Card className="border-[#334155] bg-[#1E293B]">
