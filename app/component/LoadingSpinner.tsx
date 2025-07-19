@@ -36,11 +36,11 @@ const LoadingSpinner = ({
           </div>
 
           {/* Inner pulsing ring */}
-          <div className="absolute inset-2 rounded-full border-2 border-brand-400/40 animate-pulse"></div>
+          <div className="absolute inset-2 rounded-full border-2 bg-[#2563EB]/40 animate-pulse"></div>
 
           {/* Center logo */}
           <div
-            className={`relative ${sizeClasses[size]} bg-brand-600 rounded-full flex items-center justify-center shadow-lg shadow-brand-600/25`}
+            className={`relative ${sizeClasses[size]} bg-[#2563EB] rounded-full flex items-center justify-center shadow-lg shadow-brand-600/25`}
           >
             <Brain className={`${iconSizes[size]} text-white animate-pulse`} />
           </div>
@@ -56,15 +56,15 @@ const LoadingSpinner = ({
           {/* Progress dots */}
           <div className="flex justify-center space-x-1 mt-4">
             <div
-              className="w-2 h-2 bg-brand-600 rounded-full animate-bounce"
+              className="w-2 h-2 bg-[#2563EB] rounded-full animate-bounce"
               style={{ animationDelay: "0ms" }}
             ></div>
             <div
-              className="w-2 h-2 bg-brand-500 rounded-full animate-bounce"
+              className="w-2 h-2 bg-[#3c74ec] rounded-full animate-bounce"
               style={{ animationDelay: "150ms" }}
             ></div>
             <div
-              className="w-2 h-2 bg-brand-400 rounded-full animate-bounce"
+              className="w-2 h-2 bg-[#6693f3] rounded-full animate-bounce"
               style={{ animationDelay: "300ms" }}
             ></div>
           </div>

@@ -84,20 +84,21 @@ export const useUniversalSignOut = () => {
 
   const handleSignOut = async () => {
     try {
-      // Firebase user?
-      const firebaseUser = auth.currentUser;
-      if (firebaseUser) {
+      // Always attempt to sign out from Firebase
+      if (auth.currentUser) {
         await firebaseSignOut(auth);
+        console.log(" Firebase sign-out successful");
         router.replace("/SignIn");
-        return;
       }
 
-      // NextAuth user?
+      // Always sign out from NextAuth (even if already signed out from Firebase)
       await nextAuthSignOut({ callbackUrl: "/SignIn" });
+      console.log(" NextAuth sign-out successful");
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error(" Error signing out:", error);
     }
   };
 
   return { handleSignOut };
 };
+

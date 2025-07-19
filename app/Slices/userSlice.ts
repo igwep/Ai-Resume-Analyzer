@@ -1,17 +1,18 @@
-// store/userSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import type { DocumentData } from "firebase/firestore";
 
 interface UserState {
   data: DocumentData | null;
-  loading: boolean;
+  userLoading: boolean;
   error: string | null;
+  historyCount: number;
 }
 
 const initialState: UserState = {
   data: null,
-  loading: false,
+  userLoading: false,
   error: null,
+  historyCount: 0,
 };
 
 const userSlice = createSlice({
@@ -19,17 +20,23 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<DocumentData>) => {
-      state.data = action.payload;
-      state.loading = false;
+      const payload = action.payload;
+      state.data = payload;
+      state.userLoading = false;
       state.error = null;
+      state.historyCount = payload.history ? Object.keys(payload.history).length : 0;
+    },
+    setHistoryCount: (state, action: PayloadAction<number>) => {
+      state.historyCount = action.payload;
     },
     clearUser: (state) => {
       state.data = null;
-      state.loading = false;
+      state.userLoading = false;
       state.error = null;
+      state.historyCount = 0;
     },
     setUserLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
+      state.userLoading = action.payload;
     },
     setUserError: (state, action: PayloadAction<string | null>) => {
       state.error = action.payload;
@@ -37,5 +44,12 @@ const userSlice = createSlice({
   },
 });
 
-export const { setUser, clearUser, setUserLoading, setUserError } = userSlice.actions;
+export const {
+  setUser,
+  clearUser,
+  setUserLoading,
+  setUserError,
+  setHistoryCount,
+} = userSlice.actions;
+
 export default userSlice.reducer;

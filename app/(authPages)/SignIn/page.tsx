@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "@/app/lib/Firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { signIn } from "next-auth/react";
-import { fetchUserData } from "@/app/lib/fetchUserData";
+import { fetchUserData } from "@/app/utils/firebase/fetchUserData";
 import { useAppDispatch } from "@/app/hooks/useTypedHooks";
 //import { useAppDispatch } from "@/app/hooks/useTypedHooks";
 //import { fetchFirebaseUser } from "@/app/Slices/userSlice";

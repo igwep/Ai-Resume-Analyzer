@@ -14,12 +14,12 @@ const LoadingOverlay = ({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 bg-neutral-900/95 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300">
-      <div className="bg-neutral-800 rounded-2xl border border-neutral-700 shadow-2xl p-8 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-[#1E293B]/95 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300">
+      <div className="bg-[#0F172A] rounded-2xl border border-[#334155] shadow-2xl p-8 max-w-md w-full mx-4">
         <LoadingSpinner size="xl" message={message} type={type} />
 
         {/* Additional branding */}
-        <div className="mt-6 pt-6 border-t border-neutral-700 text-center">
+        <div className="mt-6 pt-6 border-t border-[#334155] text-center">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <div className="w-6 h-6 bg-brand-600 rounded flex items-center justify-center">
               <svg

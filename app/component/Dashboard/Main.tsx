@@ -1,5 +1,5 @@
 "use client";
-import React,{useState, useRef} from 'react'
+import React,{useState, useRef, /* useEffect */} from 'react'
  import { useAppDispatch, useAppSelector } from '@/app/hooks/useTypedHooks';
  import { startLoading, stopLoading } from '@/app/Slices/LoaderSlice';
 import { setAnalysisResult, /* clearAnalysisResult */ } from '@/app/Slices/analysisSlice'
@@ -31,8 +31,9 @@ import {
 } from "lucide-react";
 import { Progress } from '../ui/Progress';
 import { openModal, /* closeModal */ } from '@/app/Slices/modalSLice';
-
-
+import { updateUserHistory } from '@/app/utils/firebase/firebaseFunctions';
+import { getResumeNamesWithScoresFromUserData } from '@/app/utils/getResumeNamesWithScoresFromUserData';
+//import { getResumeNamesWithScores } from '@/app/utils/firebase/firebaseFunctions';
 
  interface AnalysisResult {
   score: {
@@ -62,10 +63,12 @@ import { openModal, /* closeModal */ } from '@/app/Slices/modalSLice';
     note: string;
   }[];
 }
+/* interface ResumeSummary {
+  resumeName: string;
+  score: number;
+} */
 
-
-
- const analysisHistory = [
+/*  const analysisHistory = [
     {
       id: 1,
       name: "Senior_Developer_Resume.pdf",
@@ -87,70 +90,7 @@ import { openModal, /* closeModal */ } from '@/app/Slices/modalSLice';
       score: 94,
       status: "completed",
     },
-  ];
-/*   const analysisData = {
-    score: {`
-      title: "Match Score",
-      value: 85,
-    },
-    missingSkills: {
-      title: "Missing Skills or Experiences",
-      value: [
-        {
-          name: "TypeScript",
-          importance: "high",
-        },
-        {
-          name: "GraphQL",
-          importance: "medium",
-        },
-        {
-          name: "Docker",
-          importance: "low",
-        },
-      ],
-    },
-    suggestions: {
-      title: "Suggestions to Improve Resume",
-      value:
-        "Add experience with TypeScript and highlight backend project work.",
-    },
-    skills: [
-      {
-        name: "React.js",
-        importance: "high",
-        note: "Required for 89% of frontend roles",
-      },
-      {
-        name: "AWS Cloud",
-        importance: "medium",
-        note: "Mentioned in job description",
-      },
-      {
-        name: "Node.js",
-        importance: "low",
-        note: "Growing demand in backend development",
-      },
-    ],
-    detailedSuggestions: [
-      {
-        title: "Include more measurable achievements",
-        status: "improvement",
-        note: "Quantifying your results (e.g., 'improved load speed by 40%') makes your resume more compelling.",
-      },
-      {
-        title: "Highlight relevant backend experience",
-        status: "critical",
-        note: "The job emphasizes full-stack skills, but your backend experience is limited or unclear.",
-      },
-      {
-        title: "Tailor your summary to the job",
-        status: "success",
-        note: "Your summary already aligns well with the job's core requirements.",
-      },
-    ],
-  }; */
-
+  ]; */
 
   const skillGaps = [
     { skill: "Machine Learning", current: 60, target: 85 },
@@ -162,11 +102,18 @@ const Main = () => {
     const [dragActive, setDragActive] = useState(false);
     const [selectedFileName, setSelectedFileName] = useState<string | null>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    //const [history, setHistory] = useState<ResumeSummary[]>([]);
     const [jobRow, setJobRow] = useState<string>("");
     const dispatch = useAppDispatch();
     //const {openModal, closeModal} = useAppDispatch();
     /* const { isLoading, message } = useAppSelector((state) => state.loader); */
- const analysis = useAppSelector((state) => state.analysis.result) as AnalysisResult | null;
+    const analysis = useAppSelector((state) => state.analysis.result) as AnalysisResult | null;
+    const user = useAppSelector(state => state.user.data); 
+    const resumeHistoryNames = getResumeNamesWithScoresFromUserData(user);
+    const firstThreeResumeNames = resumeHistoryNames.slice(0, 3);
+    const uid  = user?.uid;  
+    const historyCount = useAppSelector((state) => state.user.historyCount);
+
  
     const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -196,19 +143,18 @@ const Main = () => {
     fileInputRef.current?.click();
   };
    const handleUpload = async () => {
-    dispatch(startLoading('analzing your Resume'))
+   
      if (!selectedFileName || !jobRow) {
       alert("Please upload a resume and enter a job description.");
       return;
     }
-    const formData = new FormData();
+     dispatch(startLoading('Analzing your Resume'))
+     const formData = new FormData();
     if (selectedFile) {
       formData.append("resume", selectedFile);
       formData.append("jobDesc", jobRow);
     }
-   
-
-
+    
     try { 
       const res = await fetch('/api/analyze',{
         method: 'POST',
@@ -226,16 +172,47 @@ const Main = () => {
         });
         return;
       }
+       if (!res.ok) {
+        throw new Error("Failed to analyze resume");
+      } 
+    
+      await updateUserHistory(uid, selectedFileName, responseJson);
       dispatch(setAnalysisResult(responseJson))
-      console.log("Analysis Result:", responseJson);
       dispatch(stopLoading());
 
-    
     } catch (error) {
       console.error("Error uploading resume:", error);
       alert("Failed to analyze resume. Please try again.");
-    } 
+    }   
    } 
+
+/*     useEffect(() => {
+    // Only fetch data if user is logged in and UID is available
+    if (!uid) return;
+
+    const fetchData = async () => {
+     dispatch(startLoading('Fetching resume summaries...'));
+      try {
+        const summaries = await getResumeNamesWithScores(uid);
+        setHistory(summaries);
+          console.log("History:", summaries); 
+      } catch (error) {
+        console.error("Error fetching resume summaries:", error);
+      }
+    dispatch(stopLoading());
+    };
+
+    fetchData();
+  }, [uid]); */
+
+
+ 
+
+/*     const resumeNames = getResumeNames();
+    console.log("Resume Names:", resumeNames); */
+
+   
+
    const latestScore = analysis?.score?.value || 0;
    const missingSkills = analysis?.missingSkills?.value || [];
    const missingSkillsTitle = analysis?.missingSkills?.title || "Missing Skills or Experiences";
@@ -249,7 +226,7 @@ const Main = () => {
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
                   <Upload className="w-5 h-5 mr-2 text-brand-400" />
-                  Upload Resume & Job Description
+                  Upload Resume & Job Role or Position
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -382,7 +359,7 @@ const Main = () => {
                     </div>
                     <div>
                       <p className="text-xl sm:text-2xl font-bold text-white">
-                        12
+                        {historyCount || 0}
                       </p>
                       <p className="text-neutral-400 text-xs sm:text-sm">
                         Analyses Done
@@ -392,7 +369,6 @@ const Main = () => {
                 </CardContent>
               </Card>
             </div>
-
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               {/* Analysis Results */}
         <div className="xl:col-span-2 space-y-6">
@@ -619,30 +595,30 @@ const Main = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {analysisHistory.map((analysis) => (
+                    {firstThreeResumeNames.map((history, index) => (
                       <div
-                        key={analysis.id}
+                        key={index}
                         className="flex items-center justify-between p-3 rounded-lg bg-[#334155]/30 hover:bg-[#334155]/50 transition-colors"
                       >
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-white truncate">
-                            {analysis.name}
+                            {history.resumeName}
                           </p>
-                          <p className="text-xs text-neutral-400">
+                         {/*  <p className="text-xs text-neutral-400">
                             {analysis.date}
-                          </p>
+                          </p> */}
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge
                             className={`${
-                              analysis.score >= 90
+                              history.score >= 90
                                 ? "bg-green-900/30 text-green-300"
-                                : analysis.score >= 80
+                                : history.score >= 80
                                   ? "bg-yellow-900/30 text-yellow-300"
                                   : "bg-red-900/30 text-red-300"
                             }`}
                           >
-                            {analysis.score}
+                            {history.score}
                           </Badge>
                           <Button
                             variant="ghost"

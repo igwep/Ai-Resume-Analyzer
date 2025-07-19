@@ -28,6 +28,11 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
   const userName = user ? user.name : "User";
   console.log("User Name:", userName); // Log the user name for debugging
   const initials = getInitials(userName);
+  const getFirstName = (name: string) => {
+    const parts = name.split(" ");
+    return parts.length > 0 ? parts[0] : "";
+  };
+  const firstName = getFirstName(userName);
   return (
         <header className="bg-[#1E293B] fixed top-0 w-full md:pl-72 border-b border-[#334155] px-6 py-4">
           <div className="flex items-center justify-between">
@@ -49,7 +54,7 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
               </Avatar>
               <div>
                 <h1 className="text-xl font-semibold text-white">
-                  Good morning, {userName} 👋
+                  Good morning, {firstName} {/* 👋 */}
                 </h1>
                 <p className="text-sm text-neutral-400">
                   Ready to optimize your resume?

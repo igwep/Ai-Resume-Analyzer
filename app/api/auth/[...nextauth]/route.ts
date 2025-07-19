@@ -63,7 +63,7 @@ const handler = NextAuth({
           console.log(" New user created:", uid);
         } else {
           uid = docSnap.data()?.uid;
-          console.log("👤 Existing user:", uid);
+          console.log(" Existing user:", uid);
 
          
 
@@ -142,45 +142,59 @@ const handler = NextAuth({
   },
   callbacks: {
     // On Google sign-in
-    async signIn({ user }) {
-      if (!user.email) return false;
+ async signIn({ user }) {
+  if (!user.email) return false;
 
-      try {
-        // Try to find Firebase Auth user by email
-        let fbUser = await auth.getUserByEmail(user.email).catch(() => null);
+  try {
+    // 1. Check if Firebase Auth user exists
+    let fbUser = await auth.getUserByEmail(user.email).catch(() => null);
 
-        // If not found, create a Firebase Auth user
-        if (!fbUser) {
-          fbUser = await auth.createUser({
-            email: user.email,
-            displayName: user.name || undefined,
-            photoURL: user.image || undefined,
-          });
-          console.log("✅ Firebase user created:", fbUser.uid);
-        } else {
-          console.log("👤 Firebase user found:", fbUser.uid);
-        }
+    // 2. Create user in Firebase Auth if needed
+    if (!fbUser) {
+      fbUser = await auth.createUser({
+        email: user.email,
+        displayName: user.name || undefined,
+        photoURL: user.image || undefined,
+      });
+      console.log("Firebase user created:", fbUser.uid);
+    } else {
+      console.log("Firebase user found:", fbUser.uid);
+    }
 
-        // Ensure Firestore user document exists (merge avoids overwriting)
-        await db.collection("users").doc(fbUser.uid).set({
+    // 3. Create Firestore document only if it doesn't exist
+    const userRef = db.collection("users").doc(fbUser.uid);
+    const userSnap = await userRef.get();
+
+    if (!userSnap.exists) {
+      await userRef.set({
+        name: user.name || "",
+        email: user.email,
+        image: user.image || "",
+        allowResumeSaving: true,
+        isEmailverified: true,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+        history: {}, // only when creating for the first time
+      });
+    } else {
+      await userRef.set(
+        {
           name: user.name || "",
           email: user.email,
           image: user.image || "",
-          allowResumeSaving: true,
-          isEmailverified: true,
-          createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
-          history: {},
-        }, { merge: true });
+        },
+        { merge: true }
+      );
+    }
 
-        // Store Firebase UID on user session
-        user.id = fbUser.uid;
-        return true;
-      } catch (err) {
-        console.error("🔥 signIn error:", err);
-        return false;
-      }
-    },
+    user.id = fbUser.uid;
+    return true;
+  } catch (err) {
+    console.error("signIn error:", err);
+    return false;
+  }
+},
 
     // Save Google ID token (from NextAuth account object) to JWT
     async jwt({ token, account }) {
@@ -202,7 +216,7 @@ const handler = NextAuth({
         const fbUser = await auth.getUserByEmail(session.user.email);
         session.user.id = fbUser.uid;
       } catch (err) {
-        console.error("⚠️ session error fetching UID:", err);
+        console.error(" session error fetching UID:", err);
       }
 
       return session;
