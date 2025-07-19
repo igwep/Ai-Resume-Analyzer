@@ -1,7 +1,8 @@
-import { doc, updateDoc, onSnapshot, getDoc } from "firebase/firestore";
+import { doc, updateDoc, onSnapshot, getDoc, Timestamp } from "firebase/firestore";
 import { db } from "../../lib/Firebase";
 import { AppDispatch } from "@/app/Store";
 import { setHistoryCount } from "@/app/Slices/userSlice";
+import { setUser } from "@/app/Slices/userSlice";
 
 /**
  * Updates or adds an entry to the user's history field in Firestore.
@@ -12,6 +13,7 @@ import { setHistoryCount } from "@/app/Slices/userSlice";
  */
 
 export interface HistoryEntry{
+  
   resumeName: string;
   score: {
     title: string;
@@ -43,10 +45,41 @@ export interface HistoryEntry{
 
 }
 
-/* export interface NamedHistoryEntry extends HistoryEntry {
+ export interface NamedHistoryEntry extends HistoryEntry {
   name: string;
-} */
+} 
+/* export const updateUserHistory = async (
+  uid: string,
+  key: string,
+  value: HistoryEntry
+) => {
+  if (!uid) {
+    throw new Error('UID is required to update user history.');
+  }
 
+  const userRef = doc(db, 'users', uid);
+  const id = uuidv4(); // generate a unique id
+
+  const enrichedEntry = {
+    ...value,
+    id,
+    createdAt: new Date().toISOString(), // or use serverTimestamp() for Firestore native
+  };
+
+  const historyField = `history.${key}`;
+
+  try {
+    await updateDoc(userRef, {
+      [historyField]: enrichedEntry,
+      updatedAt: serverTimestamp(), // optional field to track user's last update
+    });
+
+    console.log('History entry updated with ID and timestamp.');
+  } catch (error) {
+    console.error('Error updating history:', error);
+    throw error;
+  }
+}; */
 export const updateUserHistory = async (
   uid: string,
   key: string,
@@ -106,5 +139,45 @@ export const listenToUserHistory = async (uid: string, dispatch: AppDispatch) =>
   return unsubscribe;
 };
 
+/* export const listenToUserData = (
+  uid: string,
+  dispatch: AppDispatch
+): (() => void) => {
+  const userDocRef = doc(db, "users", uid);
 
+  const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+      dispatch(setUser(data));
+    }
+  });
+
+  return unsubscribe; // Call this function to stop listening
+}; */
+export const listenToUserData = (
+  uid: string,
+  dispatch: AppDispatch
+): (() => void) => {
+  const userDocRef = doc(db, "users", uid);
+
+  const unsubscribe = onSnapshot(userDocRef, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.data();
+
+      const safeData = {
+        ...data,
+        createdAt: data.createdAt instanceof Timestamp
+          ? data.createdAt.toDate().toISOString()
+          : null,
+        updatedAt: data.updatedAt instanceof Timestamp
+          ? data.updatedAt.toDate().toISOString()
+          : null,
+      };
+
+      dispatch(setUser(safeData));
+    }
+  });
+
+  return unsubscribe;
+};
 

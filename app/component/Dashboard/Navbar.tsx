@@ -26,7 +26,7 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
     .toUpperCase(); 
 
   const userName = user ? user.name : "User";
-  console.log("User Name:", userName); // Log the user name for debugging
+  //console.log("User Name:", userName); // Log the user name for debugging
   const initials = getInitials(userName);
   const getFirstName = (name: string) => {
     const parts = name.split(" ");

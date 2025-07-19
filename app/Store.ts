@@ -11,6 +11,13 @@ export const store = configureStore({
     modal: modalReducer,
     user: userReducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+  ignoredPaths: ["user.data.createdAt"],
+  ignoredActionPaths: ["payload.createdAt"],
+} 
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

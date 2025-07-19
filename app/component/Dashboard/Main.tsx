@@ -109,9 +109,11 @@ const Main = () => {
     /* const { isLoading, message } = useAppSelector((state) => state.loader); */
     const analysis = useAppSelector((state) => state.analysis.result) as AnalysisResult | null;
     const user = useAppSelector(state => state.user.data); 
+    console.log("user data from main", user)
     const resumeHistoryNames = getResumeNamesWithScoresFromUserData(user);
     const firstThreeResumeNames = resumeHistoryNames.slice(0, 3);
     const uid  = user?.uid;  
+    
     const historyCount = useAppSelector((state) => state.user.historyCount);
 
  
@@ -148,6 +150,9 @@ const Main = () => {
       alert("Please upload a resume and enter a job description.");
       return;
     }
+
+ 
+
      dispatch(startLoading('Analzing your Resume'))
      const formData = new FormData();
     if (selectedFile) {

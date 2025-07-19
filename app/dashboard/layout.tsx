@@ -11,7 +11,7 @@ import { app } from "../lib/Firebase";
 import { useUserReady } from "../hooks/useUserReady";
 import { listenToUserHistory } from "../utils/firebase/firebaseFunctions";
 import GlobalLoader from "../component/GlobarLoader";
-
+import { listenToUserData } from "../utils/firebase/firebaseFunctions";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [session, dispatch]);
 
   //  Step 2: Real-time Firestore listener using user.uid from hook
-  useEffect(() => {
+  /* useEffect(() => {
     if (!user?.uid) return;
 
     let unsubscribe: (() => void) | undefined;
@@ -54,7 +54,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [user?.uid, dispatch]);
+  }, [user?.uid, dispatch]); */
+
+ useEffect(() => {
+  if (!user?.uid) return;
+
+  // Start both listeners
+  const unsubscribeUserData = listenToUserData(user.uid, dispatch);
+
+  let unsubscribeHistory: (() => void) | undefined;
+  listenToUserHistory(user.uid, dispatch).then((unsub) => {
+    unsubscribeHistory = unsub;
+  });
+
+  // Cleanup both listeners on unmount
+  return () => {
+    unsubscribeUserData();
+    if (unsubscribeHistory) unsubscribeHistory();
+  };
+}, [user?.uid, dispatch]);
 
   // UI States
   if (userLoading) {
