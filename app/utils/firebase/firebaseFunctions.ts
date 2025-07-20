@@ -11,7 +11,7 @@ import { setUser } from "@/app/Slices/userSlice";
  * @param key - The key inside the history map (e.g., "resume_1")
  * @param value - The value to store (e.g., { score: 80, timestamp: Date.now() })
  */
-
+/* sdsd */
 export interface HistoryEntry {
   id: string; // Unique identifier for the entry
   createdAt: string; // ISO timestamp (or use `Date` if not serialized)
