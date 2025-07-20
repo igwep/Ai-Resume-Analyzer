@@ -1,23 +1,21 @@
-// middleware.ts
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-const isPublicRoute = createRouteMatcher([
-  "/", 
-  "/SignIn(.*)", 
-  "/SignUp(.*)", 
-  "/about"
-]);
+export async function middleware(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-export default clerkMiddleware((auth, req) => {
-  if (!isPublicRoute(req)) {
-    auth.protect(); // 🔒 Protect all other routes
+  const isAuth = !!token;
+  const isProtected = req.nextUrl.pathname.startsWith("/dashboard");
+
+  if (isProtected && !isAuth) {
+    return NextResponse.redirect(new URL("/SignIn", req.url));
   }
-});
 
+  return NextResponse.next();
+}
+
+// Only apply to specific routes
 export const config = {
-  matcher: [
-    // Matches all routes except static files and Next internals
-    "/((?!_next|.*\\..*).*)",
-    "/(api|trpc)(.*)",
-  ],
+  matcher: ["/dashboard/:path*"],
 };

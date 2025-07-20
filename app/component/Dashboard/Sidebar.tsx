@@ -3,7 +3,8 @@ import React from 'react'
 import { useState } from 'react';
 import { Button } from '../ui/button'
 import { Home, History, Settings, HelpCircle, FileText, X } from 'lucide-react';
-import { useClerk } from '@clerk/nextjs';
+import { useUniversalSignOut } from '@/app/hooks/useFirebaseAuth';
+
 
 const sidebarItems = [
     { id: "dashboard", label: "Dashboard", icon: Home },
@@ -19,14 +20,9 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     const [activeTab, setActiveTab] = useState("dashboard");
-    const { signOut } = useClerk();
     
-  const handleLogout = () => {
-    signOut(() => {
-      // Optional: do something after logout (like redirect)
-      window.location.href = "/"; // or your custom route
-    });
-  };
+    
+  const { handleSignOut } = useUniversalSignOut();
   return (
     <div   className={`w-64 bg-[#1E293B] border-r border-[#334155] fixed  z-50 h-screen top-0 transform transition-transform duration-300 ease-in-out ${
     sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -73,7 +69,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
           <div className="w-full pt-4 px-6 absolute bottom-0 space-y-4">
             {/* Logout Button */}
             <button
-              onClick={handleLogout}
+              onClick={handleSignOut}
               className="w-full flex items-center justify-center space-x-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 text-red-300 hover:text-red-200 hover:bg-red-900/20 border border-neutral-700 hover:border-red-700/50"
             >
               <svg

@@ -1,35 +1,17 @@
-"use client";
 import React from "react";
-import { cn } from "../lib/cn";
 
-interface LoaderProps {
-  fullscreen?: boolean;
-  message?: string;
-}
-
-const Loader: React.FC<LoaderProps> = ({ fullscreen, message = "Loading…" }) => {
+export default function Loader() {
   return (
-    <div
-      className={cn(
-        fullscreen
-          ? "fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
-          : "inline-flex flex-col items-center justify-center"
-      )}
-    >
-      {/* Spinner */}
-      <span className="relative inline-block w-12 h-12">
-        {/* Outer Ring */}
-        <span className="absolute inset-0 rounded-full border-4 border-transparent border-t-brand-600 animate-spin"></span>
-        {/* Inner Circle */}
-        <span className="absolute inset-3 rounded-full bg-[#0F172A]"></span>
-      </span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Dark Overlay */}
+      <div className="absolute inset-0 bg-black opacity-60"></div>
 
-      {/* Message */}
-      {message && (
-        <p className="mt-4 text-sm font-medium text-neutral-300">{message}</p>
-      )}
+      {/* Loader Box */}
+      <div className="relative z-10 flex flex-col items-center">
+        {/* Spinner */}
+        <div className="w-16 h-16 border-4 border-[#2563EB] border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-white text-lg font-semibold">Loading...</p>
+      </div>
     </div>
   );
-};
-
-export default Loader;
+}

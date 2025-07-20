@@ -5,13 +5,19 @@ import { Input } from "@/app/component/ui/Input";
 import Label from "@/app/component/ui/Label";
 import { Separator } from "@/app/component/ui/Seperator";
 import { FileText, Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { useState  } from "react";
 import Link from "next/link";
-//import { getDoc, doc } from "firebase/firestore";
-//import { db } from "@/app/lib/Firebase";
-import { useSignIn } from "@clerk/nextjs";
+import { getDoc, doc } from "firebase/firestore";
+import { db } from "@/app/lib/Firebase";
 import { useRouter } from "next/navigation";
-//import { useAuth } from "@clerk/nextjs";
+import { auth } from "@/app/lib/Firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { signIn } from "next-auth/react";
+import { fetchUserData } from "@/app/utils/firebase/fetchUserData";
+import { useAppDispatch } from "@/app/hooks/useTypedHooks";
+//import { useAppDispatch } from "@/app/hooks/useTypedHooks";
+//import { fetchFirebaseUser } from "@/app/Slices/userSlice";
+
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,52 +25,81 @@ const SignIn = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { signIn, isLoaded } = useSignIn();
   const router = useRouter();
 
-
-
+  const dispatch = useAppDispatch();
   const handleGoogleSignIn = () => {
     // Handle Google sign in logic here
-    console.log("Google sign in clicked");
+    console.log("Google sign up clicked");
+    setIsLoading(true);
+    signIn("google", {
+      callbackUrl: "/dashboard",
+    });
   };
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle email sign in logic here
-     e.preventDefault();
+  e.preventDefault();
+  setIsLoading(true);
+  setError(null);
 
-    if (!isLoaded) return;
+  try {
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+    const user = userCredential.user;
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await signIn.create({
-        identifier: email,
-        password,
-      });
-
-      if (result.status === "complete") {
-        //await signIn.authenticateWithRedirect();
-        // OR manually redirect if not using Clerk redirect flow:
-       router.push("/dashboard");
-      } else {
-        console.log("Additional steps required: ", result);
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError(
-        err?.errors?.[0]?.message || "Something went wrong. Please try again."
-      );
-    } finally {
-      setIsLoading(false);
+    // Check if email is verified
+    if (!user.emailVerified) {
+      setError("Please verify your email before signing in.");
+      return { success: false, error: "Email not verified" };
     }
-  };
+
+    // Optional: Check Firestore user record exists
+    const userRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userRef);
+
+    if (!userDoc.exists()) {
+      setError("User record not found. Please contact support.");
+      return { success: false, error: "No user record found" };
+    }
+
+    //  Fetch and store user data in Redux
+    await fetchUserData(user.uid, dispatch);
+
+    //  Redirect after success
+    router.push("/dashboard");
+    return { success: true, user };
+
+  } catch (error: unknown) {
+    if (typeof error === "object" && error !== null && "code" in error) {
+      const err = error as { code?: string };
+
+      if (err.code === "auth/user-not-found") {
+        setError("No account found with this email.");
+      } else if (err.code === "auth/wrong-password") {
+        setError("Incorrect password.");
+      } else if (err.code === "auth/too-many-requests") {
+        setError("Too many failed attempts. Try again later.");
+      } else {
+        setError("Sign-in failed. Please try again.");
+      }
+
+      return { success: false, error: err.code };
+    }
+
+    setError("Sign-in failed. Please try again.");
+    console.error("Sign-in error:", error);
+  } finally {
+    setIsLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">
-      <div className="w-[448px] mx-auto space-y-6">
+      <div className="mx-auto w-full max-w-md space-y-6 ">
         {/* Header */}
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2">

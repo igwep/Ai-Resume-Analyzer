@@ -60,7 +60,7 @@ export const Hero = () => {
             className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12 px-4 sm:px-0"
           >
             <Button
-             onClick={() => (window.location.href = "/Dashboard")}
+             onClick={() => (window.location.href = "/dashboard")}
               size="lg"
               className="bg-[#2563EB] hover:bg-[#4681ff] text-white px-6 sm:px-8 py-3 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto"
             >
