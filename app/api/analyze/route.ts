@@ -7,10 +7,11 @@ function truncateText(text: string, maxLength = 3000): string {
   return text.length > maxLength ? text.slice(0, maxLength) + '...' : text;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function safeParseJSON(raw: string): any | null {
   try {
     return JSON.parse(raw);
-  } catch (err1) {
+  } catch {
     try {
       const repaired = jsonrepair(raw);
       return JSON.parse(repaired);

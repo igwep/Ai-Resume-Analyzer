@@ -105,6 +105,7 @@ const SignUp = () => {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
         history: {},
+        uid:user.uid
       });
     }
 

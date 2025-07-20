@@ -1,11 +1,13 @@
+import { UserData } from "@/types/userDataType";
 interface ResumeScore {
   resumeName: string;
   score: number;
+   createdAt: string; 
 }
 
 
 export const getResumeNamesWithScoresFromUserData = (
-  userData: any
+  userData: UserData | null
 ): ResumeScore[] => {
   if (!userData || !userData.history) return [];
 
@@ -20,9 +22,19 @@ export const getResumeNamesWithScoresFromUserData = (
     const latestKey = fileKeys[fileKeys.length - 1];
     const latestVersion = versions[latestKey];
 
+    let isoCreatedAt = new Date().toISOString(); // fallback
+
+    if (latestVersion?.createdAt) {
+      const parsed = new Date(latestVersion.createdAt);
+      if (!isNaN(parsed.getTime())) {
+        isoCreatedAt = parsed.toISOString();
+      }
+    }
+
     summaries.push({
       resumeName,
       score: latestVersion?.score?.value || 0,
+      createdAt: isoCreatedAt,
     });
   }
 

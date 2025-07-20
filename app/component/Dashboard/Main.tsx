@@ -33,7 +33,9 @@ import { Progress } from '../ui/Progress';
 import { openModal, /* closeModal */ } from '@/app/Slices/modalSLice';
 import { updateUserHistory } from '@/app/utils/firebase/firebaseFunctions';
 import { getResumeNamesWithScoresFromUserData } from '@/app/utils/getResumeNamesWithScoresFromUserData';
-//import { getResumeNamesWithScores } from '@/app/utils/firebase/firebaseFunctions';
+import { getTimeAgo } from '@/app/utils/getTimeAgo';
+import { UserData } from '@/types/userDataType';
+
 
  interface AnalysisResult {
   score: {
@@ -109,9 +111,16 @@ const Main = () => {
     /* const { isLoading, message } = useAppSelector((state) => state.loader); */
     const analysis = useAppSelector((state) => state.analysis.result) as AnalysisResult | null;
     const user = useAppSelector(state => state.user.data); 
-    console.log("user data from main", user)
-    const resumeHistoryNames = getResumeNamesWithScoresFromUserData(user);
-    const firstThreeResumeNames = resumeHistoryNames.slice(0, 3);
+    //console.log("user data from main", user)
+    const resumeHistoryNames = getResumeNamesWithScoresFromUserData(user as UserData | null);
+
+// Sort by createdAt in descending order (most recent first)
+    const sortedByDate = resumeHistoryNames.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+// Get the top 3 most recent entries
+    const firstThreeResumeNames = sortedByDate.slice(0, 3);
     const uid  = user?.uid;  
     
     const historyCount = useAppSelector((state) => state.user.historyCount);
@@ -150,9 +159,6 @@ const Main = () => {
       alert("Please upload a resume and enter a job description.");
       return;
     }
-
- 
-
      dispatch(startLoading('Analzing your Resume'))
      const formData = new FormData();
     if (selectedFile) {
@@ -356,11 +362,11 @@ const Main = () => {
                 </CardContent>
               </Card>
 
-              <Card className="border-[#334155] bg-[#1E293B] sm:col-span-2 lg:col-span-1">
+              <Card className="border-[#334155]   bg-[#1E293B] sm:col-span-2 lg:col-span-1">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-900/30 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
-                      <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-purple-400" />
+                    <div className="md:w-10 md:h-10 w-12 h-12 sm:w-12 sm:h-12 bg-purple-900/30 rounded-lg flex items-center justify-center mr-3 sm:mr-4">
+                      <Clock className="md:w-5 md:h-5 h-8 w-8 sm:w-6 sm:h-6 text-purple-400" />
                     </div>
                     <div>
                       <p className="text-xl sm:text-2xl font-bold text-white">
@@ -545,7 +551,6 @@ const Main = () => {
     })}
   </div>
 </div>
-
     </CardContent>
   </Card>
 
@@ -609,9 +614,9 @@ const Main = () => {
                           <p className="text-sm font-medium text-white truncate">
                             {history.resumeName}
                           </p>
-                         {/*  <p className="text-xs text-neutral-400">
-                            {analysis.date}
-                          </p> */}
+                          <p className="text-xs text-neutral-400">
+                            {getTimeAgo(history.createdAt)}
+                          </p> 
                         </div>
                         <div className="flex items-center space-x-2">
                           <Badge

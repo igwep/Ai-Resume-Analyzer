@@ -12,13 +12,17 @@ import { setUser } from "@/app/Slices/userSlice";
  * @param value - The value to store (e.g., { score: 80, timestamp: Date.now() })
  */
 
-export interface HistoryEntry{
-  
+export interface HistoryEntry {
+  id: string; // Unique identifier for the entry
+  createdAt: string; // ISO timestamp (or use `Date` if not serialized)
+
   resumeName: string;
+
   score: {
     title: string;
     value: number;
   };
+
   missingSkills: {
     title: string;
     value: {
@@ -27,10 +31,12 @@ export interface HistoryEntry{
       note: string;
     }[];
   };
+
   suggestions: {
     title: string;
     value: string;
   };
+
   skills: {
     name: string;
     importance: 'high' | 'medium' | 'low';
@@ -42,8 +48,8 @@ export interface HistoryEntry{
     status: 'critical' | 'improvement' | 'success';
     note: string;
   }[];
-
 }
+
 
  export interface NamedHistoryEntry extends HistoryEntry {
   name: string;
@@ -83,24 +89,32 @@ export interface HistoryEntry{
 export const updateUserHistory = async (
   uid: string,
   key: string,
-  value: HistoryEntry
+  value: Record<string, HistoryEntry> // raw object like your example
 ) => {
   if (!uid) {
     throw new Error("UID is required to update user history.");
   }
 
+  const now = new Date().toISOString(); // ISO string for Firestore safety
+
+  const historyEntry = {
+    ...value,
+    id: key,
+    createdAt: now,
+  };
+
   const userRef = doc(db, "users", uid);
-  const historyField = `history.${key}`; // dot notation for nested update
+  const historyField = `history.${key}`; // saves as nested: history -> key
 
   try {
     await updateDoc(userRef, {
-      [historyField]: value,
-      updatedAt: new Date(),
+      [historyField]: historyEntry,
+     // updatedAt: new Date(), // Optional: update parent `updatedAt`
     });
 
-    console.log("History entry updated.");
+    console.log(" History updated with id and createdAt.");
   } catch (error) {
-    console.error("Error updating history:", error);
+    console.error(" Error updating history:", error);
     throw error;
   }
 };
