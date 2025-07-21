@@ -3,6 +3,7 @@ import loaderReducer from "./Slices/LoaderSlice";
 import analysisReducer from "./Slices/analysisSlice";
 import modalReducer from "./Slices/modalSLice";
 import userReducer from "./Slices/userSlice";
+import navigationReducer from "./Slices/navigationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     analysis: analysisReducer,
     modal: modalReducer,
     user: userReducer,
+    navigation: navigationReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
