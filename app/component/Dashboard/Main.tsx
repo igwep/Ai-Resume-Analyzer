@@ -35,6 +35,7 @@ import { updateUserHistory } from '@/app/utils/firebase/firebaseFunctions';
 import { getResumeNamesWithScoresFromUserData } from '@/app/utils/getResumeNamesWithScoresFromUserData';
 import { getTimeAgo } from '@/app/utils/getTimeAgo';
 import { UserData } from '@/types/userDataType';
+import Link from 'next/link';
 
 
  interface AnalysisResult {
@@ -65,34 +66,6 @@ import { UserData } from '@/types/userDataType';
     note: string;
   }[];
 }
-/* interface ResumeSummary {
-  resumeName: string;
-  score: number;
-} */
-
-/*  const analysisHistory = [
-    {
-      id: 1,
-      name: "Senior_Developer_Resume.pdf",
-      date: "2 hours ago",
-      score: 92,
-      status: "completed",
-    },
-    {
-      id: 2,
-      name: "Product_Manager_CV.pdf",
-      date: "1 day ago",
-      score: 87,
-      status: "completed",
-    },
-    {
-      id: 3,
-      name: "UX_Designer_Resume.pdf",
-      date: "3 days ago",
-      score: 94,
-      status: "completed",
-    },
-  ]; */
 
   const skillGaps = [
     { skill: "Machine Learning", current: 60, target: 85 },
@@ -592,16 +565,11 @@ const Main = () => {
                         <History className="w-5 h-5 mr-2 text-brand-400" />
                         Recent Analyses
                       </span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-neutral-400 hover:text-white"
-                        onClick={() =>
-                          (window.location.href = "/dashboard/history")
-                        }
+                      <Link href="/dashboard/history"
+                        className="text-neutral-400 text-sm hover:text-white"  
                       >
                         View All
-                      </Button>
+                      </Link>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
