@@ -65,3 +65,4 @@ Project To-Do: AI Resume Analyzer
 - [ ] UI polish: transitions, loading states, error messages.
 
 remove the provider from auth page if no state is used there
+make a skeleton for dashboard

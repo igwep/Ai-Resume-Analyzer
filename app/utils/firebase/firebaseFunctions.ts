@@ -13,10 +13,11 @@ import { setUser } from "@/app/Slices/userSlice";
  */
 /* sdsd */
 export interface HistoryEntry {
-  id: string; // Unique identifier for the entry
-  createdAt: string; // ISO timestamp (or use `Date` if not serialized)
-
+  id: string;
+  createdAt: string;
   resumeName: string;
+  fileHash?: string; // New field
+  scoreImprovement?: number; // New field
 
   score: {
     title: string;
@@ -49,6 +50,7 @@ export interface HistoryEntry {
     note: string;
   }[];
 }
+
 
 
  export interface NamedHistoryEntry extends HistoryEntry {
@@ -89,35 +91,36 @@ export interface HistoryEntry {
 export const updateUserHistory = async (
   uid: string,
   key: string,
-  value: Record<string, HistoryEntry> // raw object like your example
+  value: Record<string, HistoryEntry>,
+  fileHash?: string,
+  scoreImprovement?: number
 ) => {
-  if (!uid) {
-    throw new Error("UID is required to update user history.");
-  }
+  if (!uid) throw new Error("UID is required to update user history.");
 
-  const now = new Date().toISOString(); // ISO string for Firestore safety
+  const now = new Date().toISOString();
 
   const historyEntry = {
     ...value,
     id: key,
     createdAt: now,
+    fileHash: fileHash || null,
+    scoreImprovement: scoreImprovement ?? null,
   };
 
   const userRef = doc(db, "users", uid);
-  const historyField = `history.${key}`; // saves as nested: history -> key
+  const historyField = `history.${key}`;
 
   try {
     await updateDoc(userRef, {
       [historyField]: historyEntry,
-     // updatedAt: new Date(), // Optional: update parent `updatedAt`
     });
-
-    console.log(" History updated with id and createdAt.");
+    console.log("History updated with hash and score improvement.");
   } catch (error) {
-    console.error(" Error updating history:", error);
+    console.error("Error updating history:", error);
     throw error;
   }
 };
+
 
 export const listenToUserHistory = async (uid: string, dispatch: AppDispatch) => {
   const userRef = doc(db, "users", uid);

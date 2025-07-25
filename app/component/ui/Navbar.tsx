@@ -30,7 +30,7 @@ const Navbar = () => {
     opacity: 1,
     y: 0,
     transition: {
-      type: "spring" as const, // ✅ Explicit type
+      type: "spring" as const, //  Explicit type
       stiffness: 300,
       damping: 24,
     },

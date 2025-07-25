@@ -4,6 +4,8 @@ export interface HistoryEntry {
   createdAt: string; // ISO timestamp (or use `Date` if not serialized)
 
   resumeName: string;
+   fileHash?: string; 
+  scoreImprovement?: number; 
 
   score: {
     title: string;

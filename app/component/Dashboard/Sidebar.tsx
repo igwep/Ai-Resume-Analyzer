@@ -76,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                 className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   activeItemId === item.id
                     ? 'bg-[#2563EB] text-white'
-                    : 'text-neutral-300 hover:text-white hover:bg-neutral-700'
+                    : 'text-neutral-300 hover:text-white hover:bg-[#1E3A8A]/30'
                 }`}
               >
                 <Icon className="w-5 h-5" />

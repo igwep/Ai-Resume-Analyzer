@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
       <div className="flex">
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <main className="flex-1 p-6 md:ml-64 pt-26 overflow-y-auto">
+        <main className="flex-1 p-2 md:ml-64 pt-26 overflow-y-auto">
           <GlobalLoader />
           
           {children}

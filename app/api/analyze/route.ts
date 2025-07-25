@@ -111,7 +111,7 @@ Instructions:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-chat:free',
+        model: 'google/gemini-2.0-flash-exp:free',
         messages: [
           { role: 'system', content: 'You are an expert resume advisor.' },
           { role: 'user', content: prompt },
