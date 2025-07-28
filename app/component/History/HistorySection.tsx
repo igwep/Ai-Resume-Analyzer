@@ -29,7 +29,7 @@ import { getTimeAgo } from '@/app/utils/getTimeAgo';
 import { useLatestHistoryDate } from '@/app/hooks/useGetLastAnalysis';
 //Main
 
-const Main = () => {
+export const HistorySection = () => {
    // const [sidebarOpen, setSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("all");
@@ -286,4 +286,3 @@ const historyList: HistoryEntry[] =
   )
 }
 
-export default Main

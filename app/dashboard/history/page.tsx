@@ -1,9 +1,9 @@
 import React from 'react'
-import Main from '@/app/component/History/Main'
+import { HistorySection } from '@/app/component/History/HistorySection'
 
 const History = () => {
   return (
-    <div><Main/></div>
+    <div><HistorySection /></div>
   )
 }
 
