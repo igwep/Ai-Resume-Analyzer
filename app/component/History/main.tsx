@@ -27,7 +27,7 @@ import { useAppSelector } from '@/app/hooks/useTypedHooks';
 import { HistoryEntry, /* UserData */ } from '@/types/userDataType';
 import { getTimeAgo } from '@/app/utils/getTimeAgo';
 import { useLatestHistoryDate } from '@/app/hooks/useGetLastAnalysis';
-
+//Main
 
 const Main = () => {
    // const [sidebarOpen, setSidebarOpen] = useState(false);
