@@ -1,5 +1,5 @@
 import React from 'react'
-import Main from '@/app/component/History/main'
+import Main from '@/app/component/History/Main'
 
 const History = () => {
   return (

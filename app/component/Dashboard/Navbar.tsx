@@ -34,7 +34,7 @@ const Navbar: React.FC<NavbarProps> = ({ setSidebarOpen, sidebarOpen }) => {
   };
   const firstName = getFirstName(userName);
   return (
-        <header className="bg-[#1E293B] fixed top-0 w-full md:pl-72 border-b border-[#334155] px-6 md:px-2 py-4">
+        <header className="bg-[#1E293B] z-50 fixed top-0 w-full md:pl-72 border-b border-[#334155] px-6 md:px-2 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               {/* Mobile burger menu */}

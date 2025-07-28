@@ -12,11 +12,15 @@ import { useUserReady } from "../hooks/useUserReady";
 import { listenToUserHistory } from "../utils/firebase/firebaseFunctions";
 import GlobalLoader from "../component/GlobarLoader";
 import { listenToUserData } from "../utils/firebase/firebaseFunctions";
+import { useAppSelector } from "../hooks/useTypedHooks";
+import { closeModal } from "../Slices/modalSLice";
+import ServerTimeoutModal from "../component/ServerTimeOutModal";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
+  const modal = useAppSelector((state) => state.modal);
 
   //  Using your custom hook
   const { user, ready, userLoading, error } = useUserReady();
@@ -99,6 +103,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <main className="flex-1 p-2 md:ml-64 pt-26 overflow-y-auto">
           <GlobalLoader />
+          {modal.modalType === 'server-timeout' && (
+        <ServerTimeoutModal
+          isOpen={modal.isOpen}
+          onClose={() => dispatch(closeModal())}
+          title={modal.modalProps?.title as string}
+          description={modal.modalProps?.description as string}
+          isRetrying={modal.modalProps?.isRetrying as boolean}
+        />
+      )}
           
           {children}
         </main>

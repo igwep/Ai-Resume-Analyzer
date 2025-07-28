@@ -23,6 +23,10 @@ import {
 import { Input } from "../ui/Input";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/Badge";
+import { useAppSelector } from '@/app/hooks/useTypedHooks';
+import { HistoryEntry, /* UserData */ } from '@/types/userDataType';
+import { getTimeAgo } from '@/app/utils/getTimeAgo';
+import { useLatestHistoryDate } from '@/app/hooks/useGetLastAnalysis';
 
 
 const Main = () => {
@@ -33,232 +37,11 @@ const Main = () => {
   const [selectedAnalysis, setSelectedAnalysis] = useState<any>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const user = useAppSelector((state) => state.user.data);
+  const latestHistoryDate = useLatestHistoryDate();
+  const lastAnalysis = getTimeAgo(latestHistoryDate?.toISOString() || "");
 
-  const analysisHistory = [
-    {
-      id: 1,
-      name: "Senior_Developer_Resume.pdf",
-      date: "2024-03-15",
-      time: "2 hours ago",
-      score: 92,
-      status: "completed",
-      type: "resume",
-      size: "2.3 MB",
-      analysisResults: {
-        score: {
-          title: "Match Score",
-          value: 92,
-        },
-        missingSkills: {
-          title: "Missing Skills or Experiences",
-          value: [
-            { name: "TypeScript", importance: "high" as const },
-            { name: "AWS", importance: "medium" as const },
-            { name: "Docker", importance: "low" as const },
-          ],
-        },
-        suggestions: {
-          title: "Suggestions to Improve Resume",
-          value:
-            "Add more quantifiable achievements and highlight your leadership experience. Consider adding TypeScript skills to match current market demands.",
-        },
-        detailedSuggestions: [
-          {
-            title: "Include more measurable achievements",
-            status: "improvement" as const,
-            note: "Quantifying your results (e.g., 'improved performance by 40%') makes your resume more compelling.",
-          },
-          {
-            title: "Highlight relevant backend experience",
-            status: "critical" as const,
-            note: "The job emphasizes full-stack skills, but your backend experience needs more emphasis.",
-          },
-          {
-            title: "Strong technical foundation",
-            status: "success" as const,
-            note: "Your technical skills section is well-structured and comprehensive.",
-          },
-        ],
-      },
-    },
-    {
-      id: 2,
-      name: "Product_Manager_CV.pdf",
-      date: "2024-03-14",
-      time: "1 day ago",
-      score: 87,
-      status: "completed",
-      type: "resume",
-      size: "1.8 MB",
-      analysisResults: {
-        score: {
-          title: "Match Score",
-          value: 87,
-        },
-        missingSkills: {
-          title: "Missing Skills or Experiences",
-          value: [
-            { name: "Agile Methodology", importance: "high" as const },
-            { name: "Data Analysis", importance: "medium" as const },
-          ],
-        },
-        suggestions: {
-          title: "Suggestions to Improve Resume",
-          value:
-            "Emphasize cross-functional team leadership and add metrics to product launch achievements.",
-        },
-        detailedSuggestions: [
-          {
-            title: "Add product metrics",
-            status: "improvement" as const,
-            note: "Include specific metrics like user growth, revenue impact, or engagement rates.",
-          },
-          {
-            title: "Highlight stakeholder management",
-            status: "critical" as const,
-            note: "Product management roles require strong stakeholder communication skills.",
-          },
-        ],
-      },
-    },
-    {
-      id: 3,
-      name: "UX_Designer_Resume.pdf",
-      date: "2024-03-12",
-      time: "3 days ago",
-      score: 94,
-      status: "completed",
-      type: "resume",
-      size: "2.1 MB",
-      analysisResults: {
-        score: {
-          title: "Match Score",
-          value: 94,
-        },
-        missingSkills: {
-          title: "Missing Skills or Experiences",
-          value: [{ name: "Prototyping Tools", importance: "medium" as const }],
-        },
-        suggestions: {
-          title: "Suggestions to Improve Resume",
-          value:
-            "Excellent portfolio presentation. Consider adding more user research methodology details.",
-        },
-        detailedSuggestions: [
-          {
-            title: "Outstanding design portfolio",
-            status: "success" as const,
-            note: "Your portfolio effectively demonstrates design thinking and problem-solving skills.",
-          },
-        ],
-      },
-    },
-    {
-      id: 4,
-      name: "Data_Scientist_CV.pdf",
-      date: "2024-03-10",
-      time: "5 days ago",
-      score: 89,
-      status: "completed",
-      type: "resume",
-      size: "1.9 MB",
-      analysisResults: {
-        score: {
-          title: "Match Score",
-          value: 89,
-        },
-        missingSkills: {
-          title: "Missing Skills or Experiences",
-          value: [
-            { name: "MLOps", importance: "high" as const },
-            { name: "Kubernetes", importance: "medium" as const },
-          ],
-        },
-        suggestions: {
-          title: "Suggestions to Improve Resume",
-          value:
-            "Strong technical background. Add more business impact details to your data science projects.",
-        },
-        detailedSuggestions: [
-          {
-            title: "Add business impact metrics",
-            status: "improvement" as const,
-            note: "Quantify how your data science work affected business outcomes.",
-          },
-        ],
-      },
-    },
-    {
-      id: 5,
-      name: "Marketing_Manager_Resume.pdf",
-      date: "2024-03-08",
-      time: "1 week ago",
-      score: 85,
-      status: "completed",
-      type: "resume",
-      size: "2.0 MB",
-      analysisResults: {
-        score: {
-          title: "Match Score",
-          value: 85,
-        },
-        missingSkills: {
-          title: "Missing Skills or Experiences",
-          value: [
-            { name: "Digital Marketing", importance: "high" as const },
-            { name: "SEO/SEM", importance: "medium" as const },
-          ],
-        },
-        suggestions: {
-          title: "Suggestions to Improve Resume",
-          value:
-            "Good campaign management experience. Add more digital marketing and analytics skills.",
-        },
-        detailedSuggestions: [
-          {
-            title: "Expand digital marketing skills",
-            status: "critical" as const,
-            note: "Modern marketing roles require strong digital and analytics capabilities.",
-          },
-        ],
-      },
-    },
-    {
-      id: 6,
-      name: "Frontend_Developer_CV.pdf",
-      date: "2024-03-05",
-      time: "2 weeks ago",
-      score: 91,
-      status: "completed",
-      type: "resume",
-      size: "2.4 MB",
-      analysisResults: {
-        score: {
-          title: "Match Score",
-          value: 91,
-        },
-        missingSkills: {
-          title: "Missing Skills or Experiences",
-          value: [
-            { name: "Next.js", importance: "medium" as const },
-            { name: "Testing", importance: "high" as const },
-          ],
-        },
-        suggestions: {
-          title: "Suggestions to Improve Resume",
-          value:
-            "Excellent frontend skills. Consider adding testing experience and modern framework knowledge.",
-        },
-        detailedSuggestions: [
-          {
-            title: "Add testing experience",
-            status: "critical" as const,
-            note: "Testing skills are essential for senior frontend development roles.",
-          },
-        ],
-      },
-    },
-  ];
+ 
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleViewAnalysis = (analysis: any) => {
@@ -286,14 +69,23 @@ const Main = () => {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   }; */
+const historyList: HistoryEntry[] =
+  user?.history
+    ? Object.values(user.history as { [key: string]: { [key: string]: HistoryEntry } })
+        .flatMap((group) => Object.values(group as { [key: string]: HistoryEntry }))
+    : [];
 
-  const filteredHistory = analysisHistory.filter((item) => {
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesFilter = filterType === "all" || item.type === filterType;
-    return matchesSearch && matchesFilter;
-  });
+  console.log("User:", user);
+  console.log("History List:", historyList);
+
+  
+
+/*  const filteredHistory = historyList.filter((item: HistoryEntry) => {
+  const matchesSearch = item.resumeName?.toLowerCase().includes(searchQuery.toLowerCase());
+  const matchesFilter = filterType === "all";
+  return matchesSearch && matchesFilter;
+});
+  console.log("Filtered History:", filteredHistory); */
 
 
   return (
@@ -310,7 +102,7 @@ const Main = () => {
               </div>
               <div>
                 <p className="text-xl sm:text-2xl font-bold text-white">
-                  {analysisHistory.length}
+                  {historyList.length}
                 </p>
                 <p className="text-neutral-400 text-xs sm:text-sm">
                   Total Analyses
@@ -359,7 +151,9 @@ const Main = () => {
                 <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-orange-400" />
               </div>
               <div>
-                <p className="text-xl sm:text-2xl font-bold text-white">2h</p>
+                <p className="text-xl sm:text-2xl font-bold text-white">
+                  {lastAnalysis}
+                </p>
                 <p className="text-neutral-400 text-xs sm:text-sm">
                   Last Analysis
                 </p>
@@ -422,7 +216,7 @@ const Main = () => {
         </CardHeader>
         <CardContent className="p-0">
           <div className="divide-y divide-[#334155]">
-            {filteredHistory.map((analysis) => (
+            {historyList.map((analysis: HistoryEntry) => (
               <div
                 key={analysis.id}
                 className="p-4 sm:p-6 hover:bg-[#334155]/50 transition-colors"
@@ -434,28 +228,30 @@ const Main = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-medium truncate">
-                        {analysis.name}
+                        {analysis.id}
                       </h3>
                       <div className="flex items-center space-x-4 text-sm text-neutral-400 mt-1">
                         <span className="flex items-center">
                           <Calendar className="w-3 h-3 mr-1" />
-                          {analysis.time}
+                          {getTimeAgo(analysis.createdAt)} ago
                         </span>
-                        <span>{analysis.size}</span>
+                     {/*    <span>{analysis.size}</span> */}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center space-x-3">
                     <Badge
                       className={`${
-                        analysis.score >= 90
-                          ? "bg-green-900/30 text-green-300"
-                          : analysis.score >= 80
-                          ? "bg-yellow-900/30 text-yellow-300"
-                          : "bg-red-900/30 text-red-300"
-                      }`}
+    analysis.score?.value >= 90
+      ? "bg-green-900/30 text-green-300"
+      : analysis.score?.value >= 80
+      ? "bg-yellow-900/30 text-yellow-300"
+      : analysis.score?.value >= 60
+      ? "bg-orange-900/30 text-orange-300"
+      : "bg-red-900/30 text-red-300"
+  }`}
                     >
-                      {analysis.score}
+                      {analysis.score?.value}
                     </Badge>
                     <div className="flex space-x-1">
                       <Button

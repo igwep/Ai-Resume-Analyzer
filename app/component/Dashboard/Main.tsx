@@ -28,7 +28,7 @@ import {
   AlertCircle,
   CheckCircle,
   Award,
-} from "lucide-react";
+} from "lucide-react";  
 import { Progress } from '../ui/Progress';
 import { openModal, /* closeModal */ } from '@/app/Slices/modalSLice';
 import { updateUserHistory } from '@/app/utils/firebase/firebaseFunctions';
@@ -36,13 +36,24 @@ import { getResumeNamesWithScoresFromUserData } from '@/app/utils/getResumeNames
 import { getTimeAgo } from '@/app/utils/getTimeAgo';
 import { UserData } from '@/types/userDataType';
 import Link from 'next/link';
+import { getFileHash } from '@/app/utils/hashFIle';
+import { isFileAlreadyUploaded } from '@/app/utils/isFileAlreadyUploaded';
+import { db, } from '@/app/lib/Firebase';
+import { getDoc, doc } from "firebase/firestore";
 
 
  interface AnalysisResult {
+  id: string;
+  createdAt: string;
+  resumeName: string;
+  fileHash?: string; // New field
+  scoreImprovement?: number; // New field
+
   score: {
     title: string;
     value: number;
   };
+
   missingSkills: {
     title: string;
     value: {
@@ -51,15 +62,18 @@ import Link from 'next/link';
       note: string;
     }[];
   };
+
   suggestions: {
     title: string;
     value: string;
   };
+
   skills: {
     name: string;
     importance: 'high' | 'medium' | 'low';
     note: string;
   }[];
+
   detailedSuggestions: {
     title: string;
     status: 'critical' | 'improvement' | 'success';
@@ -123,52 +137,131 @@ const Main = () => {
       setSelectedFile(file);
     }
   };
+
     const handleClick = () => {
     fileInputRef.current?.click();
   };
-   const handleUpload = async () => {
-   
-     if (!selectedFileName || !jobRow) {
-      alert("Please upload a resume and enter a job description.");
+
+
+const handleUpload = async () => {
+  if (!selectedFileName || !jobRow) {
+    alert("Please upload a resume and enter a job description.");
+    return;
+  }
+
+  dispatch(startLoading("Analyzing your Resume"));
+
+  const formData = new FormData();
+
+  if (selectedFile) {
+    formData.append("resume", selectedFile);
+    formData.append("jobDesc", jobRow);
+  }
+
+  try {
+    const fileHash = await getFileHash(selectedFile!);
+    const alreadyUploaded = await isFileAlreadyUploaded(uid, fileHash);
+
+    if (alreadyUploaded) {
+      dispatch(stopLoading());
+      openModal({
+        modalType: "error",
+        modalProps: {
+          title: "Duplicate Resume",
+          message: "This resume has already been analyzed.",
+        },
+      });
       return;
     }
-     dispatch(startLoading('Analzing your Resume'))
-     const formData = new FormData();
-    if (selectedFile) {
-      formData.append("resume", selectedFile);
-      formData.append("jobDesc", jobRow);
-    }
-    
-    try { 
-      const res = await fetch('/api/analyze',{
-        method: 'POST',
-        body: formData,
-      })
-      const responseJson = await res.json(); 
-      if(responseJson.error === "server_fail"){
-        dispatch(stopLoading());
-        openModal({
-          modalType: "error",
-          modalProps: {
-            title: "Server Error",
-            message: "Failed to analyze resume. Please try again later.",
-          },
-        });
-        return;
-      }
-       if (!res.ok) {
-        throw new Error("Failed to analyze resume");
-      } 
-    
-      await updateUserHistory(uid, selectedFileName, responseJson);
-      dispatch(setAnalysisResult(responseJson))
-      dispatch(stopLoading());
 
-    } catch (error) {
-      console.error("Error uploading resume:", error);
-      alert("Failed to analyze resume. Please try again.");
-    }   
-   } 
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      body: formData,
+    });
+
+    const responseJson = await res.json();
+
+    if (!res.ok) {
+      //throw new Error(responseJson.error || "server_fail");
+        dispatch(stopLoading());
+       dispatch(openModal({
+        modalType: "server-timeout",
+        modalProps: {
+          title: "Server Error",
+          message: "We're having trouble connecting to our servers...",
+        },
+      }));
+    }
+
+    const userDoc = await getDoc(doc(db, "users", uid));
+    const prevHistory = userDoc.data()?.history || {};
+    const prevScore = (Object.values(prevHistory).at(-1) as { score?: { value?: number } } | undefined)?.score?.value;
+
+    let improvement: number | undefined;
+    if (typeof prevScore === "number") {
+      improvement = responseJson.score?.value - prevScore;
+    }
+
+    await updateUserHistory(uid, selectedFileName, responseJson, fileHash, improvement);
+    dispatch(setAnalysisResult(responseJson));
+    dispatch(stopLoading());
+
+  } catch (error: unknown) {
+  dispatch(stopLoading());
+  console.error("Error caught in handleUpload:", error);
+
+  const errorMessage =
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error
+      ? (error as { message?: string }).message
+      : "";
+
+  const isRateLimitError =
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as { message?: string }).message === "string" &&
+    (error as { message: string }).message.includes("rate-limited upstream");
+
+  if (isRateLimitError) {
+    dispatch(
+      openModal({
+        modalType: "server-timeout",
+        modalProps: {
+          title: "Server Busy",
+          message:
+            "Our AI provider is currently rate-limited. Please try again shortly or use your own API key in settings.",
+        },
+      })
+    );
+  } else if (errorMessage === "server_fail") {
+    dispatch(
+      openModal({
+        modalType: "server-timeout",
+        modalProps: {
+          title: "Server Error",
+          message: "We're having trouble connecting to our servers...",
+        },
+      })
+    );
+  } else {
+    dispatch(
+      openModal({
+        modalType: "error",
+        modalProps: {
+          title: "Unexpected Error",
+          message:
+            "An unexpected error occurred while analyzing your resume. Please try again.",
+        },
+      })
+    );
+  }
+}
+};
+
+
+
 
 /*     useEffect(() => {
     // Only fetch data if user is logged in and UID is available
@@ -200,11 +293,12 @@ const Main = () => {
    const latestScore = analysis?.score?.value || 0;
    const missingSkills = analysis?.missingSkills?.value || [];
    const missingSkillsTitle = analysis?.missingSkills?.title || "Missing Skills or Experiences";
+   const scoreImprovement = analysis?.scoreImprovement || 0;
    //const missingSkillsNote = analysis?.missingSkills?.note || "Important skills for your field";
    
 
   return (
-   <div className="max-w-8xl mx-auto space-y-6">
+   <div className="max-w-8xl  mx-auto space-y-6 p-4 sm:p-6">
             {/* Upload Section */}
             <Card className="border-[#334155] bg-[#1E293B]">
               <CardHeader>
@@ -325,7 +419,7 @@ const Main = () => {
                     </div>
                     <div>
                       <p className="text-xl sm:text-2xl font-bold text-white">
-                        +15
+                        {scoreImprovement || 0}%
                       </p>
                       <p className="text-neutral-400 text-xs sm:text-sm">
                         Score Improvement
@@ -468,7 +562,7 @@ const Main = () => {
   </h3>
 
   <div className="space-y-3">
-    {analysis?.detailedSuggestions.map((suggestion, index) => {
+    {analysis?.detailedSuggestions?.map((suggestion, index) => {
       const getIcon = (status: string) => {
         switch (status) {
           case "critical":
@@ -583,7 +677,7 @@ const Main = () => {
                             {history.resumeName}
                           </p>
                           <p className="text-xs text-neutral-400">
-                            {getTimeAgo(history.createdAt)}
+                            {getTimeAgo(history.createdAt)} ago
                           </p> 
                         </div>
                         <div className="flex items-center space-x-2">

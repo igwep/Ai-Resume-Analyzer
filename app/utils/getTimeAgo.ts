@@ -6,7 +6,7 @@ export function getTimeAgo(dateString: string): string {
 
   const intervals: [number, string][] = [
     [60, "second"],
-    [60, "minute"],
+    [60, "min"],
     [24, "hour"],
     [7, "day"],
     [4.34524, "week"],
@@ -26,5 +26,5 @@ export function getTimeAgo(dateString: string): string {
   time = Math.floor(time);
   const unit = intervals[unitIndex][1];
 
-  return `${time} ${unit}${time !== 1 ? "s" : ""} ago`;
+  return `${time} ${unit}${time !== 1 ? "s" : ""}`;
 }
