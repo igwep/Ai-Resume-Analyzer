@@ -27,7 +27,7 @@ import { useAppSelector } from '@/app/hooks/useTypedHooks';
 import { HistoryEntry, /* UserData */ } from '@/types/userDataType';
 import { getTimeAgo } from '@/app/utils/getTimeAgo';
 import { useLatestHistoryDate } from '@/app/hooks/useGetLastAnalysis';
-//Main
+import { getAverageScore } from '@/app/utils/getAverageScore';
 
 export const HistorySection = () => {
    // const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -75,8 +75,12 @@ const historyList: HistoryEntry[] =
         .flatMap((group) => Object.values(group as { [key: string]: HistoryEntry }))
     : [];
 
-  console.log("User:", user);
-  console.log("History List:", historyList);
+  const allScores: number[] = user?.history
+  ? Object.values(user.history as { [key: string]: { [key: string]: HistoryEntry } })
+      .flatMap((group) => Object.values(group as { [key: string]: HistoryEntry }))
+      .map((entry) => entry.score.value)
+  : [];
+  const averageScore = getAverageScore(allScores);
 
   
 
@@ -119,7 +123,7 @@ const historyList: HistoryEntry[] =
                 <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-400" />
               </div>
               <div>
-                <p className="text-xl sm:text-2xl font-bold text-white">89</p>
+                <p className="text-xl sm:text-2xl font-bold text-white">{Math.round(averageScore)}</p>
                 <p className="text-neutral-400 text-xs sm:text-sm">
                   Average Score
                 </p>
