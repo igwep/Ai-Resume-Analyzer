@@ -15,19 +15,24 @@ import { listenToUserData } from "../utils/firebase/firebaseFunctions";
 import { useAppSelector } from "../hooks/useTypedHooks";
 import { closeModal } from "../Slices/modalSLice";
 import ServerTimeoutModal from "../component/ServerTimeOutModal";
+import ErrorFallback from "../component/ErrorFallback";
+import { ErrorBoundary } from "react-error-boundary";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
   const modal = useAppSelector((state) => state.modal);
+  const user = useAppSelector((state) => state.user.data);
 
   //  Using your custom hook
-  const { user, ready, userLoading, error } = useUserReady();
+  const { /* user,  */ ready, /* userLoading, */ /* error */ } = useUserReady();
 
   // Step 1: Sign in and fetch user data
   useEffect(() => {
     const signInAndFetch = async () => {
+      setIsLoading(true)
       if (session?.idToken && session.user?.id) {
         try {
           const auth = getAuth(app);
@@ -38,12 +43,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           await fetchUserData(session.user.id, dispatch);
         } catch (err) {
           console.error("Firebase sign-in or fetch error:", err);
+        } finally{
+          setIsLoading(false)
         }
       }
     };
 
     signInAndFetch();
-  }, [session, dispatch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   //  Step 2: Real-time Firestore listener using user.uid from hook
   /* useEffect(() => {
@@ -76,10 +84,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     unsubscribeUserData();
     if (unsubscribeHistory) unsubscribeHistory();
   };
-}, [user?.uid, dispatch]);
+// eslint-disable-next-line react-hooks/exhaustive-deps
+}, [user?.uid]);
 
   // UI States
-  if (userLoading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-[#0F172A]" suppressHydrationWarning>
         <Loader />
@@ -87,11 +96,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     );
   }
 
-  if (error) return <p className="text-red-500 p-4">Error: {error}</p>;
-  if (!ready) return null;
+/*   if (error) return <p className="text-red-500 p-4">Error: {error}</p>;*/
+  if (!ready) return null; 
 
   return (
-    <div className="min-h-screen bg-[#0F172A]">
+   <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => { dispatch(closeModal()) }}>
+     <div className="min-h-screen bg-[#0F172A]">
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       {sidebarOpen && (
         <div
@@ -117,5 +127,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </div>
     </div>
+
+   </ErrorBoundary>
   );
 }
